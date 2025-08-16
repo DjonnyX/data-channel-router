@@ -5,7 +5,7 @@
  * @email djonnyx@gmail.com
  */
 export enum DataChannelEvents {
-    IDLE = 'dc-idle',
-    CONNECTED = 'dc-connectedg',
-    UNAVAILABLE = 'dc-unavailable',
+    IDLE = 'idle',
+    CONNECTED = 'connectedg',
+    UNAVAILABLE = 'unavailable',
 }

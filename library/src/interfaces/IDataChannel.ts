@@ -1,9 +1,16 @@
+import { DataChannelStatuses } from "../enums";
+import { Id } from "../types";
+import { IEventEmitter } from "../utils";
+
 /**
  * DataChannelRouter interface
  * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannel.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */
-export interface IDataChannel {
-
+export interface IDataChannel extends IEventEmitter {
+    get id(): Id;
+    get status(): DataChannelStatuses;
+    ping: (cb?: (error: any | null, delay: number | null) => void) => void;
+    execute(cb?: (error: any | null, data: any | null) => void): void;
 }

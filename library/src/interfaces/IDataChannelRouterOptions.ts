@@ -7,5 +7,12 @@ import { IDataChannel } from "./IDataChannel";
  * @email djonnyx@gmail.com
  */
 export interface IDataChannelRouterOptions {
-    channels: Array<IDataChannel>,
+    /**
+     * Data channels
+     */
+    channels: Array<IDataChannel>;
+    /**
+     * Maximum number of parallel threads
+     */
+    maxThreads?: number;
 }

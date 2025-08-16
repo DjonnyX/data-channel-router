@@ -1,15 +1,15 @@
 import { DataChannelEvents } from "../enums";
-import { IDataChannelOptions } from "../interfaces";
-import { Id } from "../types";
-import { EventEmitter, final } from "../utils";
+import { IDataChannel, IDataChannelOptions } from "../interfaces";
+import { EventEmitter } from "../utils";
+import { DataChannelExecutor } from "./DataChannelExecutor";
 
 type ChannelEvents = typeof DataChannelEvents.IDLE | typeof DataChannelEvents.CONNECTED | typeof DataChannelEvents.UNAVAILABLE;
 
-type OnIdleListener = (id: Id) => void;
+type OnIdleListener = (channel: IDataChannel) => void;
 
-type OnConnectedListener = (id: Id) => void;
+type OnConnectedListener = (channel: IDataChannel) => void;
 
-type OnUnavailableListener = (id: Id) => void;
+type OnUnavailableListener = (channel: IDataChannel) => void;
 
 type DataChanelListeners = OnIdleListener | OnConnectedListener | OnUnavailableListener;
 
@@ -19,13 +19,53 @@ type DataChanelListeners = OnIdleListener | OnConnectedListener | OnUnavailableL
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */
-@final
 export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners> {
+    get id() { return this._channel.id; }
+
+    get status() { return this._channel.status; }
+
+    get options() { return this._options; }
+
+    protected _channel: DataChannelExecutor;
+
+    private _onDataChannelConnectedHandler() {
+        this.dispatch(DataChannelEvents.CONNECTED, this);
+    }
+
+    private _onDataChannelIdleHandler() {
+        this.dispatch(DataChannelEvents.IDLE, this);
+    }
+
+    private _onDataChannelUnavailableHandler() {
+        this.dispatch(DataChannelEvents.UNAVAILABLE, this);
+    }
+
     constructor(private _options: IDataChannelOptions) {
         super();
+
+        this._channel = new DataChannelExecutor(_options);
+        this._channel.addEventListener(DataChannelEvents.CONNECTED, this._onDataChannelConnectedHandler);
+        this._channel.addEventListener(DataChannelEvents.IDLE, this._onDataChannelIdleHandler);
+        this._channel.addEventListener(DataChannelEvents.UNAVAILABLE, this._onDataChannelUnavailableHandler);
+    }
+
+    ping(cb?: (error: any | null, delay: number | null) => void) {
+        if (this._channel) {
+            this._channel.ping(cb);
+        }
+    }
+
+    execute(cb?: (error: any | null, data: any | null) => void) {
+        if (this._channel) {
+            this._channel.execute(cb);
+        }
     }
 
     dispose() {
+        super.dispose();
 
+        if (this._channel) {
+            this._channel.dispose();
+        }
     }
 }
