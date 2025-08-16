@@ -3,10 +3,8 @@
   "version": "0.0.1",
   "description": "Data channel router",
   "scripts": {
-    "start": "npm run build:lib && npm run serve",
-    "serve": "npx webpack serve --mode=development",
-    "copy:lib-to-src": "node ./scripts/copy-lib-to-root.js",
-    "build:lib": "cd ./library && npm i && npm run build && cd .. && npm run copy:lib-to-src"
+    "start": "npm run serve",
+    "build": "npx webpack"
   },
   "repository": {
     "type": "git",
@@ -27,11 +25,8 @@
   },
   "homepage": "https://github.com/DjonnyX/data-channel-router#readme",
   "devDependencies": {
-    "fs-extra": "^11.3.1",
-    "html-webpack-plugin": "^5.6.4",
     "ts-loader": "^9.5.2",
     "typescript": "^5.9.2",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.2"
+    "webpack-cli": "^6.0.1"
   }
 }

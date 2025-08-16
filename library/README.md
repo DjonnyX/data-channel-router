@@ -2,14 +2,14 @@
 
 ## Installation
 
-Run command
+Run
 ```bash
 npm install
 ```
 
 ## Tests
 
-Run command
+Run
 ```bash
 npm start
 ```

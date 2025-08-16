@@ -1,14 +1,15 @@
 {
     "compilerOptions": {
         "outDir": "./dist/",
+        "declaration": true,
         "sourceMap": true,
         "noImplicitAny": true,
         "module": "es6",
         "target": "es5",
         "allowJs": true,
-        "moduleResolution": "node"
+        "moduleResolution": "node",
     },
     "exclude": [
-        "./scripts/*",
+        "webpack.config.js"
     ]
 }

@@ -1,4 +1,4 @@
-import { DataChannel, DataChannelRouter, IDataChannel } from './DC';
+import { DataChannel, DataChannelRouter, IDataChannel } from './dc-router';
 
 const channel1 = new DataChannel({
     // etc
