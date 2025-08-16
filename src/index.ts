@@ -131,7 +131,6 @@ const req3 = new Request(), channel3 = new DataChannel({
     },
     routes: routes('channel3', req3),
 });
-
 const req4 = new Request(), channel4 = new DataChannel({
     ping: () => {
         return req4.ping('[channel4]::[PING]');
@@ -144,6 +143,7 @@ const channels: Array<IDataChannel> = [
 ];
 
 const dc = new DataChannelRouter<IRoutes>({
+    maxThreads: 2,
     channels,
 });
 

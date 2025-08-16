@@ -41,11 +41,15 @@ export class DataChannelExecutor<R = any> extends EventEmitter<ChannelEvents, Da
     private _router: R;
     get router() { return this._router; }
 
-    constructor(private _options: IDataChannelOptions) {
+    constructor(private _options: IDataChannelOptions, id?: Id) {
         super();
         this._router = createRouter<R>(this._options.routes);
-        this._id = DataChannelExecutor.__nextId;
-        DataChannelExecutor.__nextId = DataChannelExecutor.__nextId === Number.MAX_SAFE_INTEGER ? 0 : DataChannelExecutor.__nextId + 1;
+        if (id === undefined) {
+            this._id = DataChannelExecutor.__nextId;
+            DataChannelExecutor.__nextId = DataChannelExecutor.__nextId === Number.MAX_SAFE_INTEGER ? 0 : DataChannelExecutor.__nextId + 1;
+        } else {
+            this._id = id;
+        }
     }
 
     protected dispatchStatus(status: DataChannelStatuses) {

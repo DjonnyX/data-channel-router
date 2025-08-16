@@ -1,5 +1,6 @@
 import { DataChannelEvents } from "../enums";
 import { IDataChannel, IDataChannelOptions } from "../interfaces";
+import { Id } from "../types";
 import { EventEmitter } from "../utils";
 import { DataChannelExecutor } from "./DataChannelExecutor";
 
@@ -44,10 +45,10 @@ export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners
         // this.dispatch(DataChannelEvents.UNAVAILABLE, this);
     }
 
-    constructor(private _options: IDataChannelOptions) {
+    constructor(private _options: IDataChannelOptions, id?: Id) {
         super();
 
-        this._channel = new DataChannelExecutor(_options);
+        this._channel = new DataChannelExecutor(_options, id);
         this._channel.addEventListener(DataChannelEvents.CONNECTED, this._onDataChannelConnectedHandler);
         this._channel.addEventListener(DataChannelEvents.IDLE, this._onDataChannelIdleHandler);
         this._channel.addEventListener(DataChannelEvents.UNAVAILABLE, this._onDataChannelUnavailableHandler);

@@ -46,7 +46,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
         this._threadsInWork++;
 
         if (this._threadsInWork > this._maxThreads) {
-            throw Error('The number of threads has exceeded the maximum value.');
+            console.warn(`The number of threads (${this._threadsInWork}) has exceeded the maximum value.`);
         }
     };
 
@@ -73,6 +73,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
 
     add(thread: Thread) {
         this._threadQueue.push(thread);
+        this.startNextThreadIfNeed();
     }
 
     run() {
@@ -87,10 +88,6 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
         if (this._threadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
             const thread = this._threadQueue.shift();
             this.startThread(thread);
-        }
-        if (this._threadQueue.length === 0) {
-            this.dispatch(ThreadManagerEvents.COMPLITED);
-            this._checkAfterCompleteDebounced.execute();
         }
     }
 
