@@ -100,7 +100,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
         const index = this._threadQueue.findIndex((t => t === thread));
         if (index > -1) {
             this._threadQueue.splice(index, 1);
-            thread.removeAllListeners();
+            thread.dispose();
         }
     }
 
