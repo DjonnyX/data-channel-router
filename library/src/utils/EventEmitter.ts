@@ -7,7 +7,7 @@ export type TEventHandler = (...args: Array<any>) => void;
  * @email djonnyx@gmail.com
  */
 export class EventEmitter<E = string, H = TEventHandler> {
-    private _listeners: {
+    protected _listeners: {
         [eventName: string]: Array<TEventHandler>,
     } = {};
 
