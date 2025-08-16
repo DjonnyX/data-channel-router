@@ -1,6 +1,6 @@
 /**
  * Class finalizer
- * @link https://github.com/DjonnyX/data-channel-router/blob/main/src/utils/ClassFinalizer.ts
+ * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/utils/ClassFinalizer.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */

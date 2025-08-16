@@ -15,7 +15,7 @@ type DataChanelListeners = OnDataChannelIdleListener | OnDataChannelConnectedLis
 
 /**
  * Data channel
- * @link https://github.com/DjonnyX/data-channel-router/blob/main/src/components/DataChannel.ts
+ * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/components/DataChannel.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */

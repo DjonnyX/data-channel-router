@@ -2,7 +2,7 @@ export type TEventHandler = (...args: Array<any>) => void;
 
 /**
  * Simple event emitter
- * @link https://github.com/DjonnyX/data-channel-router/blob/main/src/utils/EventEmitter.ts
+ * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/utils/EventEmitter.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */

@@ -1,6 +1,6 @@
 /**
  * Thread manager options interface
- * @link https://github.com/DjonnyX/data-channel-router/blob/main/src/interfaces/IThreadManagerOptions.ts
+ * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IThreadManagerOptions.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */

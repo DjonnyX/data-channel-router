@@ -1,6 +1,6 @@
 /**
- * DataChannelEvents
- * @link https://github.com/DjonnyX/data-channel-router/blob/main/src/enums/DataChannelEvents.ts
+ * Data channel events
+ * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelEvents.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */

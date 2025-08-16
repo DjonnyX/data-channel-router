@@ -3,7 +3,7 @@ import { EventEmitter, final } from "../utils";
 
 /**
  * Data channel router
- * @link https://github.com/DjonnyX/data-channel-router/blob/main/src/components/DataChannelRouter.ts
+ * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/components/DataChannelRouter.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */

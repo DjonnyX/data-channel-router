@@ -3,24 +3,24 @@ import { IDataChannelOptions } from "../interfaces";
 import { Id } from "../types";
 import { EventEmitter, final } from "../utils";
 
-type CacheMapEvents = typeof DataChannelEvents.IDLE | typeof DataChannelEvents.CONNECTED | typeof DataChannelEvents.UNAVAILABLE;
+type ChannelEvents = typeof DataChannelEvents.IDLE | typeof DataChannelEvents.CONNECTED | typeof DataChannelEvents.UNAVAILABLE;
 
-type OnDataChannelIdleListener = (id: Id) => void;
+type OnIdleListener = (id: Id) => void;
 
-type OnDataChannelConnectedListener = (id: Id) => void;
+type OnConnectedListener = (id: Id) => void;
 
-type OnDataChannelUnavailableListener = (id: Id) => void;
+type OnUnavailableListener = (id: Id) => void;
 
-type DataChanelListeners = OnDataChannelIdleListener | OnDataChannelConnectedListener | OnDataChannelUnavailableListener;
+type DataChanelListeners = OnIdleListener | OnConnectedListener | OnUnavailableListener;
 
 /**
  * Data channel
- * @link https://github.com/DjonnyX/data-channel-router/blob/main/src/components/DataChannel.ts
+ * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/components/DataChannel.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */
 @final
-export class DataChannel extends EventEmitter<CacheMapEvents, DataChanelListeners> {
+export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners> {
     constructor(private _options: IDataChannelOptions) {
         super();
     }

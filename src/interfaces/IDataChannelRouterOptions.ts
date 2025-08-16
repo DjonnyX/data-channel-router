@@ -2,7 +2,7 @@ import { IDataChannel } from "./IDataChannel";
 
 /**
  * DataChannelRouter options interface
- * @link https://github.com/DjonnyX/data-channel-router/blob/main/src/interfaces/IDataChannelRouterOptions.ts
+ * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelRouterOptions.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */
