@@ -1,4 +1,4 @@
-import { IDataChannel } from "./IDataChannel";
+import { IDataChannelOptions } from "./IDataChannelOptions";
 
 /**
  * DataChannelRouter options interface
@@ -10,7 +10,7 @@ export interface IDataChannelRouterOptions<R = any> {
     /**
      * Data channels
      */
-    channels: Array<IDataChannel>;
+    channels: Array<IDataChannelOptions>;
     /**
      * Maximum number of parallel threads
      */

@@ -55,7 +55,7 @@ export class EventEmitter<E = string, H = TEventHandler> {
                 return true;
             }
         }
-        return false
+        return false;
     }
 
     /**

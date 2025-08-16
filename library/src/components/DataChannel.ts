@@ -23,9 +23,9 @@ type DataChanelListeners = OnIdleListener | OnConnectedListener | OnUnavailableL
 export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners> {
     get id() { return this._channel.id; }
 
-    get status() { 
+    get status() {
         return this._channel.status;
-     }
+    }
 
     get options() { return this._options; }
 

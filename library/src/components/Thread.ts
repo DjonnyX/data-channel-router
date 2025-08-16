@@ -1,5 +1,6 @@
 import { ThreadEvents } from "../enums";
 import { IThreadOptions } from "../interfaces";
+import { Id } from "../types";
 import { EventEmitter } from "../utils";
 
 type Events = typeof ThreadEvents.STARTED | typeof ThreadEvents.REJECTED | typeof ThreadEvents.COMPLITED;
@@ -19,6 +20,11 @@ type Listeners = OnStartedListener | OnRejectedListener | OnComplitedListener;
  * @email djonnyx@gmail.com
  */
 export class Thread extends EventEmitter<Events, Listeners> {
+    private static __nextId: number = 0;
+
+    private _id: Id;
+    get id() { return this._id; }
+
     private _onStart: () => void;
     set onStart(v: () => void) {
         if (this._onStart !== v) {
@@ -31,13 +37,15 @@ export class Thread extends EventEmitter<Events, Listeners> {
         if (options?.onStart !== undefined) {
             this._onStart = options.onStart;
         }
+        this._id = Thread.__nextId;
+        Thread.__nextId = Thread.__nextId === Number.MAX_SAFE_INTEGER ? 0 : Thread.__nextId + 1;
     }
 
     start() {
-        this.dispatch(ThreadEvents.STARTED, this);
         if (this._onStart !== undefined) {
             this._onStart();
         }
+        this.dispatch(ThreadEvents.STARTED, this);
     }
 
     reject() {

@@ -67,7 +67,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
     constructor(options?: IThreadManagerOptions) {
         super();
         if (options?.maxThreads) {
-            this._maxThreads = options.maxThreads ?? DEFAULT_MAX_THREADS;
+            this._maxThreads = options.maxThreads && options.maxThreads > 0 ? options.maxThreads : DEFAULT_MAX_THREADS;
         }
     }
 
@@ -78,14 +78,11 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
 
     run() {
         this.dispatch(ThreadManagerEvents.STARTED);
-        for (let i = 0, l = this._threadQueue.length > this._maxThreads ? this._maxThreads : this._threadQueue.length; i < l; i++) {
-            const thread = this._threadQueue[i];
-            this.startThread(thread);
-        }
+        this.startNextThreadIfNeed();
     }
 
     protected startNextThreadIfNeed() {
-        if (this._threadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
+        while (this._threadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
             const thread = this._threadQueue.shift();
             this.startThread(thread);
         }

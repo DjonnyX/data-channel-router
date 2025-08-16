@@ -2,10 +2,9 @@ import { DATA_CHANNEL_SIGNAL_QUALITY_LIST, DEFAULT_PING_TIMEOUT } from "../const
 import { DataChannelEvents, DataChannelSignalQuality, DataChannelStatuses } from "../enums";
 import { DataChannelRouterEvents } from "../enums/DataChannelRouterEvents";
 import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
-import { IDataChannel, IDataChannelRouterOptions } from "../interfaces";
+import { IDataChannel, IDataChannelOptions, IDataChannelRouterOptions } from "../interfaces";
 import { Id } from "../types";
-import { calculateSignalQuality, debounce, EventEmitter, final } from "../utils";
-import { DataChannel } from "./DataChannel";
+import { calculateSignalQuality, EventEmitter, final } from "../utils";
 import { DataChannelProxy } from "./DataChannelProxy";
 import { Thread } from "./Thread";
 import { ThreadManager } from "./ThreadManager";
@@ -56,28 +55,12 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     private _activeChannel: DataChannelProxy | null;
     get activeChannel() { return this._activeChannel; }
 
-    private _debouncedChange = debounce((channel: IDataChannel) => {
-        this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, channel);
-    }, 200);
-
     private _onStartThreadManagerHandler = () => {
         // etc
     };
 
     private _onCompleteThreadManagerHandler = () => {
         // etc
-    };
-
-    private _onChannelConnectedStatusHandler = (channel: IDataChannel) => {
-        this.dispatch(DataChannelRouterEvents.CHANGE, channel.id, channel.status);
-    };
-
-    private _onChannelIdleStatusHandler = (channel: IDataChannel) => {
-        this.dispatch(DataChannelRouterEvents.CHANGE, channel.id, channel.status);
-    };
-
-    private _onChannelUnavailableStatusHandler = (channel: IDataChannel) => {
-        this.dispatch(DataChannelRouterEvents.CHANGE, channel.id, channel.status);
     };
 
     constructor(options: IDataChannelRouterOptions<R>) {
@@ -98,14 +81,11 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         this.run();
     }
 
-    private createInitialChannels(channels: Array<IDataChannel<R>>) {
+    private createInitialChannels(channels: Array<IDataChannelOptions>) {
         for (let i = 0, l = channels.length; i < l; i++) {
             const externalChannel = channels[i];
             if (externalChannel) {
-                const channel = new DataChannelProxy(externalChannel as unknown as DataChannel);
-                channel.channel.addEventListener(DataChannelEvents.CONNECTED, this._onChannelConnectedStatusHandler);
-                channel.channel.addEventListener(DataChannelEvents.IDLE, this._onChannelIdleStatusHandler);
-                channel.channel.addEventListener(DataChannelEvents.UNAVAILABLE, this._onChannelUnavailableStatusHandler);
+                const channel = new DataChannelProxy(externalChannel);
 
                 this.addChannelToMap(channel);
 
@@ -121,13 +101,10 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     /**
      * Adds a new data channel
      */
-    add(channel: IDataChannel<R>) {
+    add(channel: IDataChannelOptions) {
         const externalChannel = channel;
         if (externalChannel) {
-            const channel = new DataChannelProxy(externalChannel as unknown as DataChannel);
-            channel.channel.addEventListener(DataChannelEvents.CONNECTED, this._onChannelConnectedStatusHandler);
-            channel.channel.addEventListener(DataChannelEvents.IDLE, this._onChannelIdleStatusHandler);
-            channel.channel.addEventListener(DataChannelEvents.UNAVAILABLE, this._onChannelUnavailableStatusHandler);
+            const channel = new DataChannelProxy(externalChannel);
 
             this.addChannelToMap(channel);
 
@@ -162,16 +139,22 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
                         thread.reject();
 
                         signalQuality = calculateSignalQuality(-1);
-                        this.storeChannel(channel, signalQuality);
+                        const isChanged = this.storeChannel(channel, signalQuality);
                         this.selectFastestChannel();
+                        if (isChanged) {
+                            this.dispatch(DataChannelRouterEvents.CHANGE, channel.id, channel.status);
+                        }
 
                         this.pingChannel(channel);
                         return;
                     }
 
                     signalQuality = calculateSignalQuality(delay);
-                    this.storeChannel(channel, signalQuality);
+                    const isChanged = this.storeChannel(channel, signalQuality);
                     this.selectFastestChannel();
+                    if (isChanged) {
+                        this.dispatch(DataChannelRouterEvents.CHANGE, channel.id, channel.status);
+                    }
 
                     thread.complete();
 
@@ -183,7 +166,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         this._threadManager.add(thread);
     }
 
-    private storeChannel(channel: DataChannelProxy, signalQuality: DataChannelSignalQuality) {
+    private storeChannel(channel: DataChannelProxy, signalQuality: DataChannelSignalQuality): boolean {
         const map = this._channelsByPriority,
             status = signalQuality === DataChannelSignalQuality.DISABLED ? DataChannelStatuses.UNAVAILABLE : DataChannelStatuses.IDLE;
 
@@ -191,7 +174,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             map.set(signalQuality, []);
         }
 
-        if (channel.channel.status !== status) {
+        // if (channel.channel.status !== status) {
             map.forEach((data) => {
                 const index = data.findIndex(c => c.channel.id === channel.channel.id);
                 if (index > -1) {
@@ -202,7 +185,9 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             const list = map.get(signalQuality);
             channel.channel.status = status;
             list.push(channel);
-        }
+            return true;
+        // }
+        // return false;
     }
 
     private selectFastestChannel() {
@@ -216,19 +201,33 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             if (map.has(signal)) {
                 const channels = map.get(signal);
                 if (channels.length > 0) {
-                    channel = channels[0];
-                    break;
+                    for (let i = 0, l = channels.length; i < l; i++) {
+                        const c = channels[0];
+                        if (c.status !== DataChannelStatuses.UNAVAILABLE) {
+                            channel = c;
+                            break;
+                        }
+                    }
                 }
             }
         }
+
         if (this._activeChannel !== channel) {
             if (this._activeChannel && this._activeChannelRealStatus) {
                 this._activeChannel.channel.status = this._activeChannelRealStatus;
+                if (!channel && this._activeChannel.status !== DataChannelStatuses.UNAVAILABLE) {
+                    return;
+                }
             }
-            this._activeChannelRealStatus = channel.channel.status;
-            channel.channel.status = DataChannelStatuses.CONNECTED;
-            this._activeChannel = channel;
-            this._debouncedChange.execute(channel.externalChannel);
+            if (channel) {
+                this._activeChannelRealStatus = channel.channel.status;
+                channel.channel.status = DataChannelStatuses.CONNECTED;
+                this._activeChannel = channel;
+                this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, { id: channel.id, status: channel.status });
+            } else {
+                this._activeChannel = this._activeChannelRealStatus = null;
+                this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, null);
+            }
         }
     }
 

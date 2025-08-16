@@ -1,4 +1,4 @@
-import { DataChannel, DataChannelRouter, DataChannelRouterEvents, IDataChannel } from '../library/src';
+import { DataChannelRouter, DataChannelRouterEvents, IDataChannel, IDataChannelOptions } from '../library/src';
 
 class Request {
     private _pingTimeout: number;
@@ -12,48 +12,68 @@ class Request {
         return new Promise<{ opId: string }>((res, rej) => {
             const timeout = Math.random() * 500;
             this._pingTimeout = setTimeout(() => {
-                const opSuccess = Boolean(Math.round(Math.random()));
-                if (opSuccess) {
+                const isError = Math.round(Math.random()) === 1;
+                if (isError) {
                     res({ opId });
-                    return;
+                } else {
+                    rej(new Error('Some error'));
                 }
-                rej();
             }, timeout) as unknown as number;
         });
     }
     get(route: string) {
         clearTimeout(this._getTimeout);
-        return new Promise<{ route: string }>((res) => {
+        return new Promise<{ route: string }>((res, rej) => {
             const timeout = Math.random() * 500;
             this._getTimeout = setTimeout(() => {
-                res({ route });
+                const isError = Math.round(Math.random()) === 1;
+                if (isError) {
+                    res({ route });
+                } else {
+                    rej(new Error('Some error'));
+                }
             }, timeout) as unknown as number;
         });
     }
     post<D = any>(route: string, data: D) {
         clearTimeout(this._postTimeout);
-        return new Promise<{ route: string }>((res) => {
+        return new Promise<{ route: string }>((res, rej) => {
             const timeout = Math.random() * 500;
             this._postTimeout = setTimeout(() => {
-                res({ route });
+                const isError = Math.round(Math.random()) === 1;
+                if (isError) {
+                    res({ route });
+                } else {
+                    rej(new Error('Some error'));
+                }
             }, timeout) as unknown as number;
         });
     }
     put<D = any>(route: string, data: D) {
         clearTimeout(this._putTimeout);
-        return new Promise<{ route: string }>((res) => {
+        return new Promise<{ route: string }>((res, rej) => {
             const timeout = Math.random() * 500;
             this._putTimeout = setTimeout(() => {
-                res({ route });
+                const isError = Math.round(Math.random()) === 1;
+                if (isError) {
+                    res({ route });
+                } else {
+                    rej(new Error('Some error'));
+                }
             }, timeout) as unknown as number;
         });
     }
     delete(route: string) {
         clearTimeout(this._deleteTimeout);
-        return new Promise<{ route: string }>((res) => {
+        return new Promise<{ route: string }>((res, rej) => {
             const timeout = Math.random() * 500;
             this._deleteTimeout = setTimeout(() => {
-                res({ route });
+                const isError = Math.round(Math.random()) === 1;
+                if (isError) {
+                    res({ route });
+                } else {
+                    rej(new Error('Some error'));
+                }
             }, timeout) as unknown as number;
         });
     }
@@ -75,7 +95,8 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             console.info(`[SUCCESS]`, `Request: GET ${route} (${delay}ms)`);
         } catch (err) {
-            console.info(`[ERROR]`, `Request: GET ${route}`);
+            const finishedTime = Date.now(), delay = finishedTime - startTime;
+            console.info(`[ERROR]`, `Request: GET ${route} (${delay}ms)`);
         }
     },
     createUser: async (userId: string, data: { name: string; }) => {
@@ -86,7 +107,8 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             console.info(`[SUCCESS]`, `Request: POST ${route} (${delay}ms)`);
         } catch (err) {
-            console.info(`[ERROR]`, `Request: POST ${route}`);
+            const finishedTime = Date.now(), delay = finishedTime - startTime;
+            console.info(`[ERROR]`, `Request: POST ${route} (${delay}ms)`);
         }
     },
     updateUser: async (userId: string, data: { name: string; }) => {
@@ -97,7 +119,8 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             console.info(`[SUCCESS]`, `Request: PUT ${route} (${delay}ms)`);
         } catch (err) {
-            console.info(`[ERROR]`, `Request: PUT ${route}`);
+            const finishedTime = Date.now(), delay = finishedTime - startTime;
+            console.info(`[ERROR]`, `Request: PUT ${route} (${delay}ms)`);
         }
     },
     deleteUser: async (userId: string) => {
@@ -108,37 +131,38 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             console.info(`[SUCCESS]`, `Request: DELETE ${route} (${delay}ms)`);
         } catch (err) {
-            console.info(`[ERROR]`, `Request: DELETE ${route}`);
+            const finishedTime = Date.now(), delay = finishedTime - startTime;
+            console.info(`[ERROR]`, `Request: DELETE ${route} (${delay}ms)`);
         }
     },
 });
 
-const req1 = new Request(), channel1 = new DataChannel({
+const req1 = new Request(), channel1: IDataChannelOptions<IRoutes> = {
     ping: () => {
         return req1.ping('[channel1]::[PING]');
     },
     routes: routes('channel1', req1),
-});
-const req2 = new Request(), channel2 = new DataChannel({
+};
+const req2 = new Request(), channel2: IDataChannelOptions<IRoutes> = {
     ping: () => {
         return req2.ping('[channel2]::[PING]');
     },
     routes: routes('channel2', req2),
-});
-const req3 = new Request(), channel3 = new DataChannel({
+};
+const req3 = new Request(), channel3: IDataChannelOptions<IRoutes> = {
     ping: () => {
         return req3.ping('[channel3]::[PING]');
     },
     routes: routes('channel3', req3),
-});
-const req4 = new Request(), channel4 = new DataChannel({
+};
+const req4 = new Request(), channel4: IDataChannelOptions<IRoutes> = {
     ping: () => {
         return req4.ping('[channel4]::[PING]');
     },
     routes: routes('channel4', req4),
-});
+};
 
-const channels: Array<IDataChannel> = [
+const channels: Array<IDataChannelOptions> = [
     channel1, channel2, channel3,
 ];
 
@@ -147,13 +171,26 @@ const dc = new DataChannelRouter<IRoutes>({
     channels,
 });
 
-dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel) => {
-    const channelNumber = Number(channel.id) + 1;
-    console.log(`Active channel: channel${channelNumber}, status: ${channel.status}`);
-    console.log(`Stats by channels`, JSON.stringify(dc.stats));
+dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel | null) => {
+    if (channel) {
+        const channelNumber = Number(channel.id) + 1;
+        console.info(`[CONNECT] Active channel: channel${channelNumber}, status: ${channel.status}`);
+    } else {
+        console.error('[ERROR] Data channels are not available.');
+    }
+    const stats = dc.stats, actualStats: { [id: string]: any } = {};
+    for (const id in stats) {
+        const num = Number(id) + 1, stat = stats[id];
+        actualStats[`channel${num}`] = stat;
+    }
+    console.info(`[STATS] Stats by channels`, JSON.stringify(actualStats));
 })
 
 setInterval(() => {
+    if (!dc.router) {
+        console.error('[ERROR] Data channels are not available.');
+        return;
+    }
     const routeNum = Math.round(Math.random() * 4),
         userId = `${100 + Math.round(Math.random() * 10000)}`;
     switch (routeNum) {
