@@ -1,5 +1,7 @@
+import { DataChannelSignalQuality } from "../enums";
 import { IDataChannelRouterOptions } from "../interfaces";
 import { EventEmitter, final } from "../utils";
+import { DataChannel } from "./DataChannel";
 
 /**
  * Data channel router
@@ -9,6 +11,8 @@ import { EventEmitter, final } from "../utils";
  */
 @final
 export class DataChannelRouter extends EventEmitter {
+    private _channelsByPriority = new Map<DataChannelSignalQuality, Array<DataChannel>>();
+
     constructor(private _options: IDataChannelRouterOptions) {
         super();
     }
