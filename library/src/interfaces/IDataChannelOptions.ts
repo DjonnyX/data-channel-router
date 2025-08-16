@@ -6,6 +6,13 @@ import { IDataChannel } from "./IDataChannel";
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */
-export interface IDataChannelOptions {
-    // etc
+export interface IDataChannelOptions<R = any> {
+    /**
+     * Routes
+     */
+    routes: R;
+    /**
+     * Ping handler
+     */
+    ping: (...args: any[]) => Promise<any>;
 }

@@ -6,7 +6,9 @@ describe('DataChannelRouter', () => {
     test('DataChannelRouter can not be extended', () => {
         let isError = false;
         try {
-            new ExtDataChannelRouter({ channels: [] });
+            new ExtDataChannelRouter({
+                channels: [],
+            });
         } catch (error) {
             isError = true;
         }

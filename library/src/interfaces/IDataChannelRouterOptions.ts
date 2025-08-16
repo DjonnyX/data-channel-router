@@ -6,7 +6,7 @@ import { IDataChannel } from "./IDataChannel";
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */
-export interface IDataChannelRouterOptions {
+export interface IDataChannelRouterOptions<R = any> {
     /**
      * Data channels
      */
@@ -15,4 +15,8 @@ export interface IDataChannelRouterOptions {
      * Maximum number of parallel threads
      */
     maxThreads?: number;
+    /**
+     * The timeout between pings
+     */
+    pingTimeout?: number;
 }

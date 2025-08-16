@@ -2,6 +2,7 @@ import { DataChannelEvents, DataChannelStatuses } from "../enums";
 import { IDataChannel, IDataChannelOptions } from "../interfaces";
 import { Id } from "../types";
 import { EventEmitter, final } from "../utils";
+import { createRouter } from "../utils/createRouter";
 
 type ChannelEvents = typeof DataChannelEvents.IDLE | typeof DataChannelEvents.CONNECTED | typeof DataChannelEvents.UNAVAILABLE;
 
@@ -20,7 +21,7 @@ type DataChanelListeners = OnIdleListener | OnConnectedListener | OnUnavailableL
  * @email djonnyx@gmail.com
  */
 @final
-export class DataChannelExecutor extends EventEmitter<ChannelEvents, DataChanelListeners> {
+export class DataChannelExecutor<R = any> extends EventEmitter<ChannelEvents, DataChanelListeners> {
     private static __nextId: number = 0;
 
     private _id: Id;
@@ -35,8 +36,12 @@ export class DataChannelExecutor extends EventEmitter<ChannelEvents, DataChanelL
         }
     }
 
+    private _router: R;
+    get router() { return this._router; }
+
     constructor(private _options: IDataChannelOptions) {
         super();
+        this._router = createRouter<R>(this._options.routes);
         this._id = DataChannelExecutor.__nextId;
         DataChannelExecutor.__nextId = DataChannelExecutor.__nextId === Number.MAX_SAFE_INTEGER ? 0 : DataChannelExecutor.__nextId + 1;
     }
@@ -58,12 +63,19 @@ export class DataChannelExecutor extends EventEmitter<ChannelEvents, DataChanelL
         }
     }
 
-    ping(cb?: (error: any | null, delay: number | null) => void) {
-        // etc
-    }
-
-    execute(cb?: (error: any | null, data: any | null) => void) {
-        // etc
+    async ping(executor: () => Promise<any>, cb?: (error: any | null, delay: number | null) => void) {
+        const startTime = Date.now();
+        try {
+            await executor();
+            if (cb !== undefined) {
+                const time = Date.now(), delay = time - startTime;
+                cb(null, delay);
+            }
+        } catch (error) {
+            if (cb !== undefined) {
+                cb(error, null);
+            }
+        }
     }
 
     dispose() {

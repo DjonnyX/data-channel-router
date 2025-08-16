@@ -8,9 +8,8 @@ import { IEventEmitter } from "../utils";
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */
-export interface IDataChannel extends IEventEmitter {
+export interface IDataChannel<R = any> extends IEventEmitter {
     get id(): Id;
     get status(): DataChannelStatuses;
-    ping: (cb?: (error: any | null, delay: number | null) => void) => void;
-    execute(cb?: (error: any | null, data: any | null) => void): void;
+    get router(): R;
 }

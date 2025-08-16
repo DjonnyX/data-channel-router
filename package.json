@@ -6,7 +6,7 @@
     "start": "npm run build:lib && npm run serve",
     "serve": "npx webpack serve --mode=development",
     "copy:lib-to-src": "node ./scripts/copy-lib-to-root.js",
-    "build:lib": "cd ./library && npm i && npm run build && cd .. && npm run copy:lib-to-src"
+    "build:lib": "cd ./library && npm i && npm run build"
   },
   "repository": {
     "type": "git",

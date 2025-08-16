@@ -26,6 +26,8 @@ export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners
 
     get options() { return this._options; }
 
+    get router() { return this._channel.router; }
+
     protected _channel: DataChannelExecutor;
 
     private _onDataChannelConnectedHandler() {
@@ -47,18 +49,6 @@ export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners
         this._channel.addEventListener(DataChannelEvents.CONNECTED, this._onDataChannelConnectedHandler);
         this._channel.addEventListener(DataChannelEvents.IDLE, this._onDataChannelIdleHandler);
         this._channel.addEventListener(DataChannelEvents.UNAVAILABLE, this._onDataChannelUnavailableHandler);
-    }
-
-    ping(cb?: (error: any | null, delay: number | null) => void) {
-        if (this._channel) {
-            this._channel.ping(cb);
-        }
-    }
-
-    execute(cb?: (error: any | null, data: any | null) => void) {
-        if (this._channel) {
-            this._channel.execute(cb);
-        }
     }
 
     dispose() {
