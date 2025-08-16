@@ -33,25 +33,10 @@ export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners
 
     protected _channel: DataChannelExecutor;
 
-    private _onDataChannelConnectedHandler() {
-        // this.dispatch(DataChannelEvents.CONNECTED, this);
-    }
-
-    private _onDataChannelIdleHandler() {
-        // this.dispatch(DataChannelEvents.IDLE, this);
-    }
-
-    private _onDataChannelUnavailableHandler() {
-        // this.dispatch(DataChannelEvents.UNAVAILABLE, this);
-    }
-
     constructor(private _options: IDataChannelOptions, id?: Id) {
         super();
 
         this._channel = new DataChannelExecutor(_options, id);
-        this._channel.addEventListener(DataChannelEvents.CONNECTED, this._onDataChannelConnectedHandler);
-        this._channel.addEventListener(DataChannelEvents.IDLE, this._onDataChannelIdleHandler);
-        this._channel.addEventListener(DataChannelEvents.UNAVAILABLE, this._onDataChannelUnavailableHandler);
     }
 
     dispose() {

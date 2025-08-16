@@ -211,7 +211,7 @@ setInterval(() => {
             break;
         }
         case 2: {
-            dc.router.updateUser(userId, { name: 'DC1' });
+            dc.router.updateUser(userId, { name: 'JOKER' });
             break;
         }
         case 3: {

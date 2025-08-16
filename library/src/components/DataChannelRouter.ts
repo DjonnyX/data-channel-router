@@ -57,14 +57,6 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
 
     private _delayMap: IDelayMap;
 
-    private _onStartThreadManagerHandler = () => {
-        // etc
-    };
-
-    private _onCompleteThreadManagerHandler = () => {
-        // etc
-    };
-
     constructor(options: IDataChannelRouterOptions<R>) {
         super();
 
@@ -75,8 +67,6 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         this._threadManager = new ThreadManager({
             maxThreads: options?.maxThreads,
         });
-        this._threadManager.addEventListener(ThreadManagerEvents.STARTED, this._onStartThreadManagerHandler);
-        this._threadManager.addEventListener(ThreadManagerEvents.COMPLITED, this._onCompleteThreadManagerHandler);
 
         if (options?.channels) {
             this.createInitialChannels(options.channels);
