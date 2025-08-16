@@ -20,6 +20,11 @@ type Listeners = OnStartedListener | OnRejectedListener | OnComplitedListener;
  */
 export class Thread extends EventEmitter<Events, Listeners> {
     private _onStart: () => void;
+    set onStart(v: () => void) {
+        if (this._onStart !== v) {
+            this._onStart = v;
+        }
+    }
 
     constructor(options?: IThreadOptions) {
         super();

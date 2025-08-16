@@ -6,6 +6,6 @@
  */
 export enum DataChannelStatuses {
     IDLE = 'idle',
-    CONNECTED = 'connectedg',
+    CONNECTED = 'connected',
     UNAVAILABLE = 'unavailable',
 }

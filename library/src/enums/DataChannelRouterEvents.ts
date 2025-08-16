@@ -13,4 +13,4 @@ export enum DataChannelRouterEvents {
      * Emit when changing the statuses of the channels.
      */
     CHANGE = 'change',
-}
+};

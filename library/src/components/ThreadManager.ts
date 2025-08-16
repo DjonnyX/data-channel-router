@@ -1,8 +1,8 @@
-import { DEFAULT_MAX_THREADS } from "../const";
+import { DEFAULT_CHECK_TIMEOUT_AFTER_COMPLETE, DEFAULT_MAX_THREADS } from "../const";
 import { ThreadEvents } from "../enums";
 import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
 import { IThreadManagerOptions } from "../interfaces";
-import { EventEmitter } from "../utils";
+import { debounce, EventEmitter } from "../utils";
 import { Thread } from "./Thread";
 
 type Events = typeof ThreadManagerEvents.STARTED | typeof ThreadManagerEvents.COMPLITED;
@@ -35,6 +35,12 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
     get complitedThreads() { return this._complitedThreads; }
 
     get finishedThreads() { return this._complitedThreads + this._rejectedThreads; }
+
+    private _checkTimeoutAfterComplete = DEFAULT_CHECK_TIMEOUT_AFTER_COMPLETE;
+
+    private _checkAfterCompleteDebounced = debounce(() => {
+        this.startNextThreadIfNeed();
+    }, this._checkTimeoutAfterComplete);
 
     private _onThreadStartedHandler = () => {
         this._threadsInWork++;
@@ -84,6 +90,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
         }
         if (this._threadQueue.length === 0) {
             this.dispatch(ThreadManagerEvents.COMPLITED);
+            this._checkAfterCompleteDebounced.execute();
         }
     }
 
@@ -109,6 +116,10 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
     }
 
     dispose() {
+        if (this._checkAfterCompleteDebounced) {
+            this._checkAfterCompleteDebounced.dispose();
+        }
+
         while (this._threadQueue.length > 0) {
             const thread = this._threadQueue.pop();
             thread.dispose();

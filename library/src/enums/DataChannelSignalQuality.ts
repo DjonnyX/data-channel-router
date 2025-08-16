@@ -11,4 +11,4 @@ export enum DataChannelSignalQuality {
     MIDDLE = 3,
     HIGH = 4,
     VERY_HIGH = 5,
-}
+};

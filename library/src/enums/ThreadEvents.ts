@@ -8,4 +8,4 @@ export enum ThreadEvents {
     STARTED = 'started',
     REJECTED = 'rejected',
     COMPLITED = 'complited',
-}
+};

@@ -8,4 +8,4 @@ export enum DataChannelEvents {
     IDLE = 'idle',
     CONNECTED = 'connectedg',
     UNAVAILABLE = 'unavailable',
-}
+};

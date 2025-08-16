@@ -22,7 +22,9 @@ type DataChanelListeners = OnIdleListener | OnConnectedListener | OnUnavailableL
 export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners> {
     get id() { return this._channel.id; }
 
-    get status() { return this._channel.status; }
+    get status() { 
+        return this._channel.status;
+     }
 
     get options() { return this._options; }
 
@@ -31,15 +33,15 @@ export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners
     protected _channel: DataChannelExecutor;
 
     private _onDataChannelConnectedHandler() {
-        this.dispatch(DataChannelEvents.CONNECTED, this);
+        // this.dispatch(DataChannelEvents.CONNECTED, this);
     }
 
     private _onDataChannelIdleHandler() {
-        this.dispatch(DataChannelEvents.IDLE, this);
+        // this.dispatch(DataChannelEvents.IDLE, this);
     }
 
     private _onDataChannelUnavailableHandler() {
-        this.dispatch(DataChannelEvents.UNAVAILABLE, this);
+        // this.dispatch(DataChannelEvents.UNAVAILABLE, this);
     }
 
     constructor(private _options: IDataChannelOptions) {

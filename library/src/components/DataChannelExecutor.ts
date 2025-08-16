@@ -27,8 +27,10 @@ export class DataChannelExecutor<R = any> extends EventEmitter<ChannelEvents, Da
     private _id: Id;
     get id() { return this._id; }
 
-    private _status: DataChannelStatuses;
-    get status() { return this._status; }
+    private _status: DataChannelStatuses = DataChannelStatuses.UNAVAILABLE;
+    get status() {
+        return this._status;
+    }
     set status(v: DataChannelStatuses) {
         if (this._status !== v) {
             this._status = v;

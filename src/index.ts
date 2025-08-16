@@ -1,4 +1,4 @@
-import { DataChannel, DataChannelRouter, IDataChannel } from '../library/src';
+import { DataChannel, DataChannelRouter, DataChannelRouterEvents, IDataChannel } from '../library/src';
 
 class Request {
     private _pingTimeout: number;
@@ -68,41 +68,45 @@ interface IRoutes {
 
 const routes = (channel: string, req: Request): IRoutes => ({
     getUser: async (userId: string) => {
-        const route = `${channel}/user/${userId}`;
+        const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
             console.info(`[PENDING]`, `Request: GET ${route}`);
-            req.get(`${channel}/user/${userId}`);
-            console.info(`[SUCCESS]`, `Request: GET ${route}`);
+            await req.get(`${channel}/user/${userId}`);
+            const finishedTime = Date.now(), delay = finishedTime - startTime;
+            console.info(`[SUCCESS]`, `Request: GET ${route} (${delay}ms)`);
         } catch (err) {
             console.info(`[ERROR]`, `Request: GET ${route}`);
         }
     },
     createUser: async (userId: string, data: { name: string; }) => {
-        const route = `${channel}/user/${userId}`;
+        const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
             console.info(`[PENDING]`, `Request: POST ${route}`);
-            req.post(route, data);
-            console.info(`[SUCCESS]`, `Request: POST ${route}`);
+            await req.post(route, data);
+            const finishedTime = Date.now(), delay = finishedTime - startTime;
+            console.info(`[SUCCESS]`, `Request: POST ${route} (${delay}ms)`);
         } catch (err) {
             console.info(`[ERROR]`, `Request: POST ${route}`);
         }
     },
     updateUser: async (userId: string, data: { name: string; }) => {
-        const route = `${channel}/user/${userId}`;
+        const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
             console.info(`[PENDING]`, `Request: PUT ${route}`);
-            req.put(route, data);
-            console.info(`[SUCCESS]`, `Request: PUT ${route}`);
+            await req.put(route, data);
+            const finishedTime = Date.now(), delay = finishedTime - startTime;
+            console.info(`[SUCCESS]`, `Request: PUT ${route} (${delay}ms)`);
         } catch (err) {
             console.info(`[ERROR]`, `Request: PUT ${route}`);
         }
     },
     deleteUser: async (userId: string) => {
-        const route = `${channel}/user/${userId}`;
+        const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
             console.info(`[PENDING]`, `Request: DELETE ${route}`);
-            req.delete(route);
-            console.info(`[SUCCESS]`, `Request: DELETE ${route}`);
+            await req.delete(route);
+            const finishedTime = Date.now(), delay = finishedTime - startTime;
+            console.info(`[SUCCESS]`, `Request: DELETE ${route} (${delay}ms)`);
         } catch (err) {
             console.info(`[ERROR]`, `Request: DELETE ${route}`);
         }
@@ -128,6 +132,13 @@ const req3 = new Request(), channel3 = new DataChannel({
     routes: routes('channel3', req3),
 });
 
+const req4 = new Request(), channel4 = new DataChannel({
+    ping: () => {
+        return req4.ping('[channel4]::[PING]');
+    },
+    routes: routes('channel4', req4),
+});
+
 const channels: Array<IDataChannel> = [
     channel1, channel2, channel3,
 ];
@@ -136,29 +147,36 @@ const dc = new DataChannelRouter<IRoutes>({
     channels,
 });
 
+dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel) => {
+    const channelNumber = Number(channel.id) + 1;
+    console.log(`Active channel: channel${channelNumber}, status: ${channel.status}`);
+    console.log(`Stats by channels`, JSON.stringify(dc.stats));
+})
+
 setInterval(() => {
-    const routeNum = Math.round(Math.random() * 4);
+    const routeNum = Math.round(Math.random() * 4),
+        userId = `${100 + Math.round(Math.random() * 10000)}`;
     switch (routeNum) {
         default:
         case 0: {
-            const userId = `${100 + Math.random() * 10000}`;
             dc.router.getUser(userId);
             break;
         }
         case 1: {
-            const userId = `${100 + Math.random() * 10000}`;
             dc.router.createUser(userId, { name: 'DC' });
             break;
         }
         case 2: {
-            const userId = `${100 + Math.random() * 10000}`;
             dc.router.updateUser(userId, { name: 'DC1' });
             break;
         }
         case 3: {
-            const userId = `${100 + Math.random() * 10000}`;
             dc.router.deleteUser(userId);
             break;
         }
     }
 }, 2000);
+
+setTimeout(() => {
+    dc.add(channel4);
+}, 5000);

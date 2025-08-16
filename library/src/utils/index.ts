@@ -1,11 +1,13 @@
-import { final } from './ClassFinalizer';
-import { EventEmitter } from "./EventEmitter";
-import { IEventEmitter } from './interfaces';
 import { calculateSignalQuality } from './calculateSignalQuality';
+import { debounce } from './debounce';
+import { EventEmitter } from "./EventEmitter";
+import { final } from './ClassFinalizer';
+import { IEventEmitter } from './interfaces';
 
 export {
-    final,
-    EventEmitter,
-    IEventEmitter,
     calculateSignalQuality,
+    debounce,
+    EventEmitter,
+    final,
+    IEventEmitter,
 };
