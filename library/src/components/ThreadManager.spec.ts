@@ -1,3 +1,4 @@
+import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
 import { Thread } from "./Thread";
 import { ThreadManager } from "./ThreadManager";
 
@@ -60,5 +61,27 @@ describe('ThreadManager', () => {
         }
         threadManager.run();
         expect(threadManager.finishedThreads).toBe(totalThreads);
+    });
+
+    test('TreadManager must be completed', () => {
+        let completed = false;
+        const threadManager = new ThreadManager({ maxThreads: 2 }), totalThreads = 10;
+        threadManager.addEventListener(ThreadManagerEvents.COMPLITED, () => {
+            completed = true;
+        });
+        for (let i = 0, l = totalThreads; i < l; i++) {
+            const thread = new Thread({
+                onStart: () => {
+                    if (i % 2 === 0) {
+                        thread.complete();
+                    } else {
+                        thread.reject();
+                    }
+                },
+            });
+            threadManager.add(thread);
+        }
+        threadManager.run();
+        expect(completed).toBeTruthy();
     });
 });
