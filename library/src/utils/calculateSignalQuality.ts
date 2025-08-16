@@ -1,4 +1,5 @@
 import { DataChannelSignalQuality } from "../enums";
+import { IDelayMap } from "../interfaces/IDelayMap";
 
 const VERY_HIGH = 25,
     HIGH = 100,
@@ -11,20 +12,20 @@ const VERY_HIGH = 25,
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
  */
-export const calculateSignalQuality = (delay: number): DataChannelSignalQuality => {
+export const calculateSignalQuality = (delay: number, delayMap?: IDelayMap): DataChannelSignalQuality => {
     if (delay < 0) {
         return DataChannelSignalQuality.DISABLED;
     }
-    if (delay >= 0 && delay < VERY_HIGH) {
+    if (delay >= 0 && delay < (delayMap?.[DataChannelSignalQuality.VERY_HIGH] ?? VERY_HIGH)) {
         return DataChannelSignalQuality.VERY_HIGH;
     }
-    if (delay > VERY_HIGH && delay <= HIGH) {
+    if (delay > (delayMap?.[DataChannelSignalQuality.VERY_HIGH] ?? VERY_HIGH) && delay <= (delayMap?.[DataChannelSignalQuality.HIGH] ?? HIGH)) {
         return DataChannelSignalQuality.HIGH;
     }
-    if (delay > HIGH && delay <= MIDDLE) {
+    if (delay > (delayMap?.[DataChannelSignalQuality.HIGH] ?? HIGH) && delay <= (delayMap?.[DataChannelSignalQuality.MIDDLE] ?? MIDDLE)) {
         return DataChannelSignalQuality.MIDDLE;
     }
-    if (delay > MIDDLE && delay <= LOW) {
+    if (delay > (delayMap?.[DataChannelSignalQuality.MIDDLE] ?? MIDDLE) && delay <= (delayMap?.[DataChannelSignalQuality.LOW] ?? LOW)) {
         return DataChannelSignalQuality.LOW;
     }
     return DataChannelSignalQuality.VERY_LOW;

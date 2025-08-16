@@ -1,4 +1,4 @@
-import { DataChannelRouter, DataChannelRouterEvents, IDataChannel, IDataChannelOptions } from '../library/src';
+import { DataChannelRouter, DataChannelRouterEvents, DataChannelSignalQuality, IDataChannel, IDataChannelOptions } from '../library/src';
 
 class Request {
     private _pingTimeout: number;
@@ -169,6 +169,13 @@ const channels: Array<IDataChannelOptions> = [
 const dc = new DataChannelRouter<IRoutes>({
     maxThreads: 2,
     channels,
+    delayMap: {
+        [DataChannelSignalQuality.VERY_HIGH]: 50,
+        [DataChannelSignalQuality.HIGH]: 100,
+        [DataChannelSignalQuality.MIDDLE]: 500,
+        [DataChannelSignalQuality.LOW]: 1000,
+        [DataChannelSignalQuality.VERY_LOW]: 2000,
+    },
 });
 
 dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel | null) => {

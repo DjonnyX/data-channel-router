@@ -1,4 +1,5 @@
 import { IDataChannelOptions } from "./IDataChannelOptions";
+import { IDelayMap } from "./IDelayMap";
 
 /**
  * DataChannelRouter options interface
@@ -19,4 +20,8 @@ export interface IDataChannelRouterOptions<R = any> {
      * The timeout between pings
      */
     pingTimeout?: number;
+    /**
+     * Delay map
+     */
+    delayMap?: IDelayMap;
 }

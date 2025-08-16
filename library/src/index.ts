@@ -1,6 +1,6 @@
 import { DataChannel, DataChannelRouter } from './components';
-import { IDataChannel, IDataChannelOptions } from './interfaces';
-import { DataChannelEvents, DataChannelRouterEvents } from './enums';
+import { IDataChannel, IDataChannelOptions, IDelayMap } from './interfaces';
+import { DataChannelEvents, DataChannelRouterEvents, DataChannelSignalQuality } from './enums';
 
 // public-api
 export {
@@ -8,6 +8,8 @@ export {
     DataChannelRouter,
     IDataChannel,
     IDataChannelOptions,
+    IDelayMap,
     DataChannelEvents,
     DataChannelRouterEvents,
+    DataChannelSignalQuality,
 };

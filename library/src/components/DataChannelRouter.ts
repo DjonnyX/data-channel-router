@@ -1,8 +1,8 @@
 import { DATA_CHANNEL_SIGNAL_QUALITY_LIST, DEFAULT_PING_TIMEOUT } from "../const";
-import { DataChannelEvents, DataChannelSignalQuality, DataChannelStatuses } from "../enums";
+import { DataChannelSignalQuality, DataChannelStatuses } from "../enums";
 import { DataChannelRouterEvents } from "../enums/DataChannelRouterEvents";
 import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
-import { IDataChannel, IDataChannelOptions, IDataChannelRouterOptions } from "../interfaces";
+import { IDataChannel, IDataChannelOptions, IDataChannelRouterOptions, IDelayMap } from "../interfaces";
 import { Id } from "../types";
 import { calculateSignalQuality, EventEmitter, final } from "../utils";
 import { DataChannelProxy } from "./DataChannelProxy";
@@ -55,6 +55,8 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     private _activeChannel: DataChannelProxy | null;
     get activeChannel() { return this._activeChannel; }
 
+    private _delayMap: IDelayMap;
+
     private _onStartThreadManagerHandler = () => {
         // etc
     };
@@ -67,6 +69,8 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         super();
 
         this._pingTimeout = options.pingTimeout ?? DEFAULT_PING_TIMEOUT;
+
+        this._delayMap = options.delayMap;
 
         this._threadManager = new ThreadManager({
             maxThreads: options?.maxThreads,
@@ -149,7 +153,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
                         return;
                     }
 
-                    signalQuality = calculateSignalQuality(delay);
+                    signalQuality = calculateSignalQuality(delay, this._delayMap);
                     const isChanged = this.storeChannel(channel, signalQuality);
                     this.selectFastestChannel();
                     if (isChanged) {
@@ -175,17 +179,17 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         }
 
         // if (channel.channel.status !== status) {
-            map.forEach((data) => {
-                const index = data.findIndex(c => c.channel.id === channel.channel.id);
-                if (index > -1) {
-                    data.splice(index, 1);
-                }
-            });
+        map.forEach((data) => {
+            const index = data.findIndex(c => c.channel.id === channel.channel.id);
+            if (index > -1) {
+                data.splice(index, 1);
+            }
+        });
 
-            const list = map.get(signalQuality);
-            channel.channel.status = status;
-            list.push(channel);
-            return true;
+        const list = map.get(signalQuality);
+        channel.channel.status = status;
+        list.push(channel);
+        return true;
         // }
         // return false;
     }
