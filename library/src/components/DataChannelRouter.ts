@@ -1,4 +1,4 @@
-import { IDataChannelRouterOptions } from "../interfaces/IDataChannelRouterOptions";
+import { IDataChannelRouterOptions } from "../interfaces";
 import { EventEmitter, final } from "../utils";
 
 /**

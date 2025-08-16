@@ -1,5 +1,5 @@
 import { DataChannelEvents } from "../enums";
-import { IDataChannelOptions } from "../interfaces/IDataChannelOptions";
+import { IDataChannelOptions } from "../interfaces";
 import { Id } from "../types";
 import { EventEmitter, final } from "../utils";
 
