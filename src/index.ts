@@ -276,7 +276,7 @@ const channels: Array<IDataChannelOptions> = [
 ];
 
 const dc = new DataChannelRouter<IRoutes>({
-    maxThreads: 2,
+    maxThreads: 6,
     pingTimeout: 2000,
     channels,
     delayMap: {
@@ -330,7 +330,7 @@ setInterval(() => {
             break;
         }
     }
-}, 2000);
+}, 200);
 
 setTimeout(() => {
     dc.add(channel4);

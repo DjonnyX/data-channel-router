@@ -8,20 +8,8 @@ import { DataChannel } from "./DataChannel";
  * @email djonnyx@gmail.com
  */
 export class DataChannelProxy extends DataChannel {
-    get id() {
-        return this._channel.id;
-    }
-
     get channel() {
         return this._channel;
-    }
-
-    get status() {
-        return this._channel.status;
-    }
-
-    get signal() {
-        return this._channel.signal;
     }
 
     get externalChannel() {

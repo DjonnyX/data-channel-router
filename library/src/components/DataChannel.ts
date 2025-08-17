@@ -27,6 +27,10 @@ export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners
         return this._channel.status;
     }
 
+    get signal() {
+        return this._channel.signal;
+    }
+
     get options() { return this._options; }
 
     get router() { return this._channel.router; }
