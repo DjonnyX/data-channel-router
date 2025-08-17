@@ -79,8 +79,7 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
 });
 
 // Next, each time we call a route, we first check the availability of the router.
-// If the router is null, it means that there are no communication channels available at the moment.
-if (!dc.router) {
+if (!dc.isAvailable) {
     throw Error('No communication channels available.');
 } else {
     dc.router.getUser('666');
