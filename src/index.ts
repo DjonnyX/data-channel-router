@@ -66,6 +66,15 @@ const error = (str: string) => {
         li1.scrollTop = li1.scrollHeight;
     }
     console.info(str);
+
+    const ws1 = document.querySelector<HTMLDivElement>('#workspace1');
+    if (ws1) {
+        ws1.style.display = 'none';
+    }
+    const err1 = document.querySelector<HTMLDivElement>('#error1');
+    if (err1) {
+        err1.style.display = 'flex';
+    }
 }
 
 const connect = (str: string) => {
@@ -80,6 +89,15 @@ const connect = (str: string) => {
         li1.scrollTop = li1.scrollHeight;
     }
     console.info(str);
+
+    const ws1 = document.querySelector<HTMLDivElement>('#workspace1');
+    if (ws1) {
+        ws1.style.display = 'flex';
+    }
+    const err1 = document.querySelector<HTMLDivElement>('#error1');
+    if (err1) {
+        err1.style.display = 'none';
+    }
 }
 
 const stat = (str: string) => {

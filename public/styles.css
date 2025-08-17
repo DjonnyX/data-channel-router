@@ -179,10 +179,15 @@ input {
 .list.stats {
     height: 60px;
     overflow: hidden;
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .list.log {
     height: 300px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .list .scroller {
@@ -193,4 +198,59 @@ input {
 
 .list::-webkit-scrollbar {
     display: none;
+}
+
+.view-container {
+    margin-bottom: 12px;
+}
+
+.view {
+    position: relative;
+    height: 140px;
+    width: 100%;
+    border-radius: 3px;
+    box-shadow: 1px 2px 8px 4px rgba(0, 0, 0, 0.075);
+    border: 1px solid #383844;
+    background-color: #1f1f21;
+    overflow: hidden;
+    scrollbar-width: 0;
+}
+
+.view .error {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(93 25 25);
+    color: #995151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.view .workspace {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.view .workspace .workspace-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #545659;
+}
+
+.view .workspace img {
+    filter: saturate(0) brightness(5) brightness(0.2);
+    width: 74px;
 }
