@@ -17,6 +17,6 @@ export class DataChannelProxy extends DataChannel {
     }
 
     constructor(private _externalChannel: IDataChannelOptions) {
-        super(_externalChannel);
+        super(_externalChannel, _externalChannel?.id);
     }
 }

@@ -36,12 +36,14 @@ const routes = (channelService: string): IRoutes => ({
 });
 
 const channel1: IDataChannelOptions<IRoutes> = {
+    id: 1,
     ping: () => {
         return fetch('channel1/ping');
     },
     routes: routes('service1.my-web-application.com'),
 };
 const channel2: IDataChannelOptions<IRoutes> = {
+    id: 2,
     ping: () => {
         return fetch('channel2/ping');
     },

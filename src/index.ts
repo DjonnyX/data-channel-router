@@ -304,24 +304,28 @@ const socket1 = new Socket(),
     };
 
 const req1 = new Request(), channel1: IDataChannelOptions<IRoutes> = {
+    id: 1,
     ping: () => {
         return req1.ping('[channel1]::[PING]');
     },
     routes: routes('channel1', req1),
 };
 const req2 = new Request(), channel2: IDataChannelOptions<IRoutes> = {
+    id: 2,
     ping: () => {
         return req2.ping('[channel2]::[PING]');
     },
     routes: routes('channel2', req2),
 };
 const req3 = new Request(), channel3: IDataChannelOptions<IRoutes> = {
+    id: 3,
     ping: () => {
         return req3.ping('[channel3]::[PING]');
     },
     routes: routes('channel3', req3),
 };
 const req4 = new Request(), channel4: IDataChannelOptions<IRoutes> = {
+    id: 4,
     ping: () => {
         return req4.ping('[channel4]::[PING]');
     },
@@ -348,7 +352,7 @@ const dc = new DataChannelRouter<IRoutes>({
 
 dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel | null) => {
     if (channel) {
-        const channelNumber = Number(channel.id) + 1;
+        const channelNumber = Number(channel.id);
         for (let i = 0, l = 4; i < l; i++) {
             const n = i + 1;
             if (n === channelNumber) {
@@ -400,7 +404,7 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
     const stats = dc.stats;
     let statStr = '';
     for (const id in stats) {
-        const num = Number(id) + 1, stat = stats[id];
+        const num = Number(id), stat = stats[id];
         statStr += `[channel${num}]: status: ${stat.status}; signal: ${stat.signal} <br/>`;
     }
     stat(statStr);

@@ -1,3 +1,4 @@
+import { Id } from "../types";
 import { IDataChannel } from "./IDataChannel";
 
 /**
@@ -7,6 +8,10 @@ import { IDataChannel } from "./IDataChannel";
  * @email djonnyx@gmail.com
  */
 export interface IDataChannelOptions<R = any> {
+    /**
+     * Unique identifier of the data channel
+     */
+    id?: Id;
     /**
      * Routes
      */
