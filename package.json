@@ -5,6 +5,7 @@
   "scripts": {
     "start": "npm run serve",
     "serve": "npx webpack serve --mode=development",
+    "build": "npx webpack",
     "copy:lib-to-src": "node ./scripts/copy-lib-to-root.js",
     "build:lib": "cd ./library && npm i && npm run build"
   },

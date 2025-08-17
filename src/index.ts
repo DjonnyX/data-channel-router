@@ -1,4 +1,95 @@
-import { DataChannelRouter, DataChannelRouterEvents, DataChannelSignalQuality, IDataChannel, IDataChannelOptions } from 'data-channel-router';
+import { DataChannelRouter, DataChannelRouterEvents, DataChannelSignalQuality, IDataChannel, IDataChannelOptions } from '../library/src';
+
+let logStr: string = '';
+
+const formatLogStr = (str: string) => {
+    str = str.replace(/(channel1)/ig, `<span style="color:rgb(75, 190, 71);">$1</span>`);
+    str = str.replace(/(channel2)/ig, `<span style="color:rgb(255, 97, 97);">$1</span>`);
+    str = str.replace(/(channel3)/ig, `<span style="color:rgb(218, 40, 235);">$1</span>`);
+    str = str.replace(/(channel4)/ig, `<span style="color:rgb(69, 156, 255);">$1</span>`);
+    str = str.replace(/(\[CONNECT\])/ig, `<span style="color:rgb(118, 223, 86);">$1</span>`);
+    str = str.replace(/(\[SUCCESS\])/ig, `<span style="color: #3c7936;">$1</span>`);
+    str = str.replace(/(\[ERROR\])/ig, `<span style="color: #9f1717;">$1</span>`);
+    str = str.replace(/(\[PENDING\])/ig, `<span style="color:rgb(23, 127, 159);">$1</span>`);
+    return str;
+}
+
+const formatErrorStr = (str: string) => {
+    return `<span style="color:rgb(255, 48, 48);">${str}</span>`;
+}
+
+const formatConnectStr = (str: string) => {
+    return `<span style="color:rgb(118, 223, 86);">${str}</span>`;
+}
+
+const formatStatsStr = (str: string) => {
+    let result = str;
+    result = result.replace(/(\[channel1\])/ig, `<span style="color:rgb(75, 190, 71);">$1</span>`);
+    result = result.replace(/(\[channel2\])/ig, `<span style="color:rgb(255, 97, 97);">$1</span>`);
+    result = result.replace(/(\[channel3\])/ig, `<span style="color:rgb(218, 40, 235);">$1</span>`);
+    result = result.replace(/(\[channel4\])/ig, `<span style="color:rgb(69, 156, 255);">$1</span>`);
+    result = result.replace(/(connected)/ig, `<span style="color:rgb(118, 223, 86);">$1</span>`);
+    result = result.replace(/(unavailable)/ig, `<span style="color:rgb(255, 88, 88);">$1</span>`);
+    result = result.replace(/(idle)/ig, `<span style="color:rgb(221, 197, 59);">$1</span>`);
+    result = result.replace(/(: 0)/ig, `<span style="color:rgb(221, 59, 59);">$1</span>`);
+    result = result.replace(/(: 1)/ig, `<span style="color:rgb(238, 103, 41);">$1</span>`);
+    result = result.replace(/(: 2)/ig, `<span style="color:rgb(235, 138, 58);">$1</span>`);
+    result = result.replace(/(: 3)/ig, `<span style="color:rgb(231, 176, 57);">$1</span>`);
+    result = result.replace(/(: 4)/ig, `<span style="color:rgb(205, 216, 52);">$1</span>`);
+    result = result.replace(/(: 5)/ig, `<span style="color:rgb(23, 226, 50);">$1</span>`);
+    return result;
+}
+
+const log = (str: string) => {
+    logStr += formatLogStr(str) + '<br/>';
+    const li = document.querySelector('#li2-scroller');
+    if (li) {
+        li.innerHTML = logStr;
+    }
+
+    const li1 = document.querySelector('#li2');
+    if (li1) {
+        li1.scrollTop = li1.scrollHeight;
+    }
+    console.info(str);
+}
+
+const error = (str: string) => {
+    logStr += formatErrorStr(str) + '<br/>';
+    const li = document.querySelector('#li2-scroller');
+    if (li) {
+        li.innerHTML = logStr;
+    }
+
+    const li1 = document.querySelector('#li2');
+    if (li1) {
+        li1.scrollTop = li1.scrollHeight;
+    }
+    console.info(str);
+}
+
+const connect = (str: string) => {
+    logStr += formatConnectStr(str) + '<br/>';
+    const li = document.querySelector('#li2-scroller');
+    if (li) {
+        li.innerHTML = logStr;
+    }
+
+    const li1 = document.querySelector('#li2');
+    if (li1) {
+        li1.scrollTop = li1.scrollHeight;
+    }
+    console.info(str);
+}
+
+const stat = (str: string) => {
+    const result = formatStatsStr(str);
+    const li = document.querySelector('#li1-scroller');
+    if (li) {
+        li.innerHTML = result;
+    }
+    console.info(str);
+}
 
 class Request {
     private _pingTimeout: number;
@@ -90,49 +181,49 @@ const routes = (channel: string, req: Request): IRoutes => ({
     getUser: async (userId: string) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
-            console.info(`[PENDING]`, `Request: GET ${route}`);
+            log(`[PENDING] Request: GET ${route}`);
             await req.get(`${channel}/user/${userId}`);
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            console.info(`[SUCCESS]`, `Request: GET ${route} (${delay}ms)`);
+            log(`[SUCCESS] Request: GET ${route} (${delay}ms)`);
         } catch (err) {
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            console.info(`[ERROR]`, `Request: GET ${route} (${delay}ms)`);
+            log(`[ERROR] Request: GET ${route} (${delay}ms)`);
         }
     },
     createUser: async (userId: string, data: { name: string; }) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
-            console.info(`[PENDING]`, `Request: POST ${route}`);
+            log(`[PENDING] Request: POST ${route}`);
             await req.post(route, data);
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            console.info(`[SUCCESS]`, `Request: POST ${route} (${delay}ms)`);
+            log(`[SUCCESS] Request: POST ${route} (${delay}ms)`);
         } catch (err) {
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            console.info(`[ERROR]`, `Request: POST ${route} (${delay}ms)`);
+            log(`[ERROR] Request: POST ${route} (${delay}ms)`);
         }
     },
     updateUser: async (userId: string, data: { name: string; }) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
-            console.info(`[PENDING]`, `Request: PUT ${route}`);
+            log(`[PENDING] Request: PUT ${route}`);
             await req.put(route, data);
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            console.info(`[SUCCESS]`, `Request: PUT ${route} (${delay}ms)`);
+            log(`[SUCCESS] Request: PUT ${route} (${delay}ms)`);
         } catch (err) {
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            console.info(`[ERROR]`, `Request: PUT ${route} (${delay}ms)`);
+            log(`[ERROR] Request: PUT ${route} (${delay}ms)`);
         }
     },
     deleteUser: async (userId: string) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
-            console.info(`[PENDING]`, `Request: DELETE ${route}`);
+            log(`[PENDING] Request: DELETE ${route}`);
             await req.delete(route);
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            console.info(`[SUCCESS]`, `Request: DELETE ${route} (${delay}ms)`);
+            log(`[SUCCESS] Request: DELETE ${route} (${delay}ms)`);
         } catch (err) {
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            console.info(`[ERROR]`, `Request: DELETE ${route} (${delay}ms)`);
+            log(`[ERROR] Request: DELETE ${route} (${delay}ms)`);
         }
     },
 });
@@ -181,21 +272,22 @@ const dc = new DataChannelRouter<IRoutes>({
 dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel | null) => {
     if (channel) {
         const channelNumber = Number(channel.id) + 1;
-        console.info(`[CONNECT] Active channel: channel${channelNumber}, status: ${channel.status}`);
+        connect(`[CONNECT] Active channel: channel${channelNumber}, status: ${channel.status}`);
     } else {
-        console.error('[ERROR] No communication channels available.');
+        error('[ERROR] No communication channels available.');
     }
-    const stats = dc.stats, actualStats: { [id: string]: any } = {};
+    const stats = dc.stats;
+    let statStr = '';
     for (const id in stats) {
         const num = Number(id) + 1, stat = stats[id];
-        actualStats[`channel${num}`] = stat;
+        statStr += `[channel${num}]: status: ${stat.status}; signal: ${stat.signal} <br/>`;
     }
-    console.info(`[STATS] Stats by channels`, JSON.stringify(actualStats));
+    stat(statStr);
 })
 
 setInterval(() => {
     if (!dc.router) {
-        console.error('[ERROR] No communication channels available.');
+        error('[ERROR] No communication channels available.');
         return;
     }
     const routeNum = Math.round(Math.random() * 4),
