@@ -183,7 +183,7 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
         const channelNumber = Number(channel.id) + 1;
         console.info(`[CONNECT] Active channel: channel${channelNumber}, status: ${channel.status}`);
     } else {
-        console.error('[ERROR] Data channels are not available.');
+        console.error('[ERROR] No communication channels available.');
     }
     const stats = dc.stats, actualStats: { [id: string]: any } = {};
     for (const id in stats) {
@@ -195,7 +195,7 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
 
 setInterval(() => {
     if (!dc.router) {
-        console.error('[ERROR] Data channels are not available.');
+        console.error('[ERROR] No communication channels available.');
         return;
     }
     const routeNum = Math.round(Math.random() * 4),

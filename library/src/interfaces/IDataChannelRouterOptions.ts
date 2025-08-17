@@ -2,7 +2,7 @@ import { IDataChannelOptions } from "./IDataChannelOptions";
 import { IDelayMap } from "./IDelayMap";
 
 /**
- * DataChannelRouter options interface
+ * Data channel router options interface
  * @link https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelRouterOptions.ts
  * @author Evgenii Grebennikov
  * @email djonnyx@gmail.com
