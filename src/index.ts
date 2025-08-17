@@ -305,7 +305,7 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
 })
 
 setInterval(() => {
-    if (!dc.router) {
+    if (!dc.isAvailable) {
         error('[ERROR] No communication channels available.');
         return;
     }
