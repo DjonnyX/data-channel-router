@@ -1,7 +1,6 @@
 import { DATA_CHANNEL_SIGNAL_QUALITY_LIST, DEFAULT_PING_TIMEOUT } from "../const";
 import { DataChannelSignalQuality, DataChannelStatuses } from "../enums";
 import { DataChannelRouterEvents } from "../enums/DataChannelRouterEvents";
-import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
 import { IDataChannel, IDataChannelOptions, IDataChannelRouterOptions, IDelayMap } from "../interfaces";
 import { Id } from "../types";
 import { calculateSignalQuality, EventEmitter, final } from "../utils";
@@ -28,7 +27,9 @@ type Listeners = OnChannelChangeListener | OnChangeListener;
 export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> {
     private _channelsByPriority = new Map<DataChannelSignalQuality, Array<DataChannelProxy>>();
 
-    private _threadManager: ThreadManager;
+    private _pingThreadManager: ThreadManager;
+
+    private _routeThreadManager: ThreadManager;
 
     /**
      * Returns true if there are data channels available.
@@ -79,7 +80,11 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
 
         this._delayMap = options.delayMap;
 
-        this._threadManager = new ThreadManager({
+        this._pingThreadManager = new ThreadManager({
+            maxThreads: options?.maxThreads,
+        });
+
+        this._routeThreadManager = new ThreadManager({
             maxThreads: options?.maxThreads,
         });
 
@@ -94,7 +99,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         for (let i = 0, l = channels.length; i < l; i++) {
             const externalChannel = channels[i];
             if (externalChannel) {
-                appendRoute(this._router, externalChannel.routes, this._threadManager, this);
+                appendRoute(this._router, externalChannel.routes, this._routeThreadManager, this);
 
                 const channel = new DataChannelProxy(externalChannel);
 
@@ -106,7 +111,8 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     }
 
     private run() {
-        this._threadManager.run();
+        this._pingThreadManager.run();
+        this._routeThreadManager.run();
     }
 
     /**
@@ -115,7 +121,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     add(channel: IDataChannelOptions) {
         const externalChannel = channel;
         if (externalChannel) {
-            appendRoute(this._router, externalChannel.routes, this._threadManager, this);
+            appendRoute(this._router, externalChannel.routes, this._routeThreadManager, this);
 
             const channel = new DataChannelProxy(externalChannel);
 
@@ -176,7 +182,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             }
         });
 
-        this._threadManager.add(thread);
+        this._pingThreadManager.add(thread);
     }
 
     private storeChannel(channel: DataChannelProxy, signalQuality: DataChannelSignalQuality): boolean {
@@ -256,8 +262,12 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     dispose() {
         super.dispose();
 
-        if (this._threadManager) {
-            this._threadManager.dispose();
+        if (this._pingThreadManager) {
+            this._pingThreadManager.dispose();
+        }
+
+        if (this._routeThreadManager) {
+            this._routeThreadManager.dispose();
         }
 
         for (const channelId in this._pingTimeouts) {

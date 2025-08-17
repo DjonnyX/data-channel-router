@@ -17,6 +17,10 @@ export interface IDataChannelRouterOptions<R = any> {
      */
     maxThreads?: number;
     /**
+     * Maximum number of parallel ping threads
+     */
+    maxPingThreads?: number;
+    /**
      * The timeout between pings
      */
     pingTimeout?: number;
