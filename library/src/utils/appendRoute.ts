@@ -20,6 +20,7 @@ export const appendRoute = <R>(router: Object, routes: R, threadManager: ThreadM
                         if (ctx.activeChannel) {
                             const handler = ctx.activeChannel.router?.[route] as Function;
                             if (!handler) {
+                                thread.reject();
                                 throw Error(`Route ${route} is not implemented in data channel id:${ctx.activeChannel.id}.`);
                             }
                             try {

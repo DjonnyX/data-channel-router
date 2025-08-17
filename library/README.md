@@ -63,8 +63,10 @@ const dc = new DataChannelRouter<IRoutes>({
         [DataChannelSignalQuality.LOW]: 1000,
         [DataChannelSignalQuality.VERY_LOW]: 2000,
     },
-    // Set the number of parallel ping requests
-    maxThreads: 2,
+    // Sets the number of parallel route requests
+    maxThreads: 6,
+    // Sets the number of parallel ping requests
+    maxPingThreads: 4,
     // Sets the timeout between pings
     pingTimeout: 2000,
 });
