@@ -277,6 +277,7 @@ const channels: Array<IDataChannelOptions> = [
 
 const dc = new DataChannelRouter<IRoutes>({
     maxThreads: 2,
+    pingTimeout: 2000,
     channels,
     delayMap: {
         [DataChannelSignalQuality.VERY_HIGH]: 50,

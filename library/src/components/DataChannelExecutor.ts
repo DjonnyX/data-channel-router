@@ -95,6 +95,6 @@ export class DataChannelExecutor<R = any> extends EventEmitter<ChannelEvents, Da
     }
 
     dispose() {
-
+        super.dispose();
     }
 }

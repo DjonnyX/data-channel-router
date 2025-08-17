@@ -65,6 +65,8 @@ const dc = new DataChannelRouter<IRoutes>({
     },
     // Set the number of parallel ping requests
     maxThreads: 2,
+    // Sets the timeout between pings
+    pingTimeout: 2000,
 });
 
 // Start the channel change listener
