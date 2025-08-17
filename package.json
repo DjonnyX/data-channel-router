@@ -1,0 +1,41 @@
+{
+  "name": "data-channel-router",
+  "version": "1.0.0",
+  "description": "Data channel router",
+  "scripts": {
+    "start": "npm run build:lib && npm run serve",
+    "serve": "npx webpack serve --mode=development",
+    "copy:lib-to-src": "node ./scripts/copy-lib-to-root.js",
+    "build:lib": "cd ./library && npm i && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DjonnyX/data-channel-router.git"
+  },
+  "keywords": [
+    "data",
+    "channel",
+    "router"
+  ],
+  "author": {
+    "name": "Evgenii Grebennikov",
+    "email": "djonnyx@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DjonnyX/data-channel-router/issues"
+  },
+  "homepage": "https://github.com/DjonnyX/data-channel-router#readme",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "fs-extra": "^11.3.1",
+    "html-webpack-plugin": "^5.6.4",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.9.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "dependencies": {
+    "uninstall": "^0.0.0"
+  }
+}
