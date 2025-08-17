@@ -1,6 +1,5 @@
 import { IDataChannelOptions } from "../interfaces";
 import { DataChannel } from "./DataChannel";
-import { ThreadManager } from "./ThreadManager";
 
 /**
  * Data channel
@@ -17,7 +16,7 @@ export class DataChannelProxy extends DataChannel {
         return this._externalChannel;
     }
 
-    constructor(private _externalChannel: IDataChannelOptions, threadManager: ThreadManager) {
-        super(_externalChannel, threadManager);
+    constructor(private _externalChannel: IDataChannelOptions) {
+        super(_externalChannel);
     }
 }

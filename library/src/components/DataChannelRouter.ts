@@ -5,6 +5,7 @@ import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
 import { IDataChannel, IDataChannelOptions, IDataChannelRouterOptions, IDelayMap } from "../interfaces";
 import { Id } from "../types";
 import { calculateSignalQuality, EventEmitter, final } from "../utils";
+import { appendRoute } from "../utils/appendRoute";
 import { DataChannelProxy } from "./DataChannelProxy";
 import { Thread } from "./Thread";
 import { ThreadManager } from "./ThreadManager";
@@ -29,10 +30,22 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
 
     private _threadManager: ThreadManager;
 
-    get router() { return this._activeChannel?.router as R ?? null; }
+    /**
+     * Returns true if there are data channels available.
+     */
+    get isAvailable() { return this._activeChannel !== null; }
 
+    private _router = new Object();
+    /**
+     * Router
+     */
+    get router() { return this._router as R; }
+
+    /**
+     * Returns statistics for data channels
+     */
     get stats() {
-        const map = this._channelsByPriority, result: { [id: Id]: { status: DataChannelStatuses, signal: DataChannelSignalQuality } } = {};
+        const map = this._channelsByPriority, result: { [channelId: Id]: { status: DataChannelStatuses, signal: DataChannelSignalQuality } } = {};
         for (let i = 0, l = DATA_CHANNEL_SIGNAL_QUALITY_LIST.length; i < l; i++) {
             const signal: DataChannelSignalQuality = DATA_CHANNEL_SIGNAL_QUALITY_LIST[i];
             if (map.has(signal)) {
@@ -51,7 +64,10 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
 
     private _pingTimeouts: { [channelId: Id]: number } = {};
 
-    private _activeChannel: DataChannelProxy | null;
+    private _activeChannel: DataChannelProxy | null = null;
+    /**
+     * @internal
+     */
     get activeChannel() { return this._activeChannel; }
 
     private _delayMap: IDelayMap;
@@ -78,7 +94,9 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         for (let i = 0, l = channels.length; i < l; i++) {
             const externalChannel = channels[i];
             if (externalChannel) {
-                const channel = new DataChannelProxy(externalChannel, this._threadManager);
+                appendRoute(this._router, externalChannel.routes, this._threadManager, this);
+
+                const channel = new DataChannelProxy(externalChannel);
 
                 this.addChannelToMap(channel);
 
@@ -97,7 +115,9 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     add(channel: IDataChannelOptions) {
         const externalChannel = channel;
         if (externalChannel) {
-            const channel = new DataChannelProxy(externalChannel, this._threadManager);
+            appendRoute(this._router, externalChannel.routes, this._threadManager, this);
+
+            const channel = new DataChannelProxy(externalChannel);
 
             this.addChannelToMap(channel);
 
@@ -230,6 +250,9 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         }
     }
 
+    /**
+     * Clears all data. Called before deletion.
+     */
     dispose() {
         super.dispose();
 

@@ -3,7 +3,6 @@ import { IDataChannel, IDataChannelOptions } from "../interfaces";
 import { Id } from "../types";
 import { EventEmitter, final } from "../utils";
 import { createRouter } from "../utils/createRouter";
-import { ThreadManager } from "./ThreadManager";
 
 type ChannelEvents = typeof DataChannelEvents.IDLE | typeof DataChannelEvents.CONNECTED | typeof DataChannelEvents.UNAVAILABLE;
 
@@ -52,9 +51,9 @@ export class DataChannelExecutor<R = any> extends EventEmitter<ChannelEvents, Da
     private _router: R;
     get router() { return this._router; }
 
-    constructor(private _options: IDataChannelOptions, threadManager: ThreadManager, id?: Id) {
+    constructor(private _options: IDataChannelOptions, id?: Id) {
         super();
-        this._router = createRouter<R>(this._options.routes, threadManager);
+        this._router = createRouter<R>(this._options.routes);
         if (id === undefined) {
             this._id = DataChannelExecutor.__nextId;
             DataChannelExecutor.__nextId = DataChannelExecutor.__nextId === Number.MAX_SAFE_INTEGER ? 0 : DataChannelExecutor.__nextId + 1;

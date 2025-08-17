@@ -93,10 +93,21 @@ if (!dc.router) {
 
 Methods
 
-| Property | Type | Description |
+| Method | Arguments | Description |
 |---|---|---|
 | constructor | options: [IDataChannelRouterOptions<R>](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelRouterOptions.ts) | Class constructor. | 
 | add | channel: [IDataChannelOptions](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelOptions.ts) | Adds a new data channel. | 
+| dispose |  | Clears all data. Called before deletion. |
+
+<br/>
+
+Properties
+
+| Property | Type | Description |
+|---|---|---|
+| isAvailable | boolean | Readonly. Returns true if there are data channels available. |
+| router | R | Generic type. Router. |
+| stats | [IDataChannelsStats](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelsStats.ts) | Readonly. Returns statistics for data channels. |
 
 <br/>
 
