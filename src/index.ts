@@ -1,4 +1,4 @@
-import { DataChannelRouter, DataChannelRouterEvents, DataChannelSignalQuality, IDataChannel, IDataChannelOptions } from '../library/src';
+import { DataChannelRouter, DataChannelRouterEvents, DataChannelSignalQuality, IDataChannel, IDataChannelOptions } from 'data-channel-router';
 
 class Request {
     private _pingTimeout: number;
