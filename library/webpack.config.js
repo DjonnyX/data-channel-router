@@ -1,4 +1,6 @@
 const path = require('path');
+const CopyPlugin = require("copy-webpack-plugin");
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: './src/index.ts',
@@ -24,4 +26,15 @@ module.exports = {
             type: 'umd',
         },
     },
+    plugins: [
+        new CopyPlugin({
+            patterns: [
+                { from: path.resolve(__dirname, "LICENSE"), },
+                { from: path.resolve(__dirname, "README.md"), },
+                { from: path.resolve(__dirname, "package.json"), },
+                { from: path.resolve(__dirname, "index.d.ts"), }
+            ],
+        }),
+        new CleanWebpackPlugin()
+    ]
 };

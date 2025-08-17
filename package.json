@@ -1,6 +1,6 @@
 {
   "name": "data-channel-router",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Data channel router",
   "scripts": {
     "start": "npm run build:lib && npm run serve",
@@ -36,6 +36,7 @@
     "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
+    "data-channel-router": "^1.0.1",
     "uninstall": "^0.0.0"
   }
 }
