@@ -168,20 +168,21 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             map.set(signalQuality, []);
         }
 
-        // if (channel.channel.status !== status) {
-        map.forEach((data) => {
-            const index = data.findIndex(c => c.channel.id === channel.channel.id);
-            if (index > -1) {
-                data.splice(index, 1);
-            }
-        });
+        if (channel.channel.signal !== signalQuality) {
+            map.forEach((data) => {
+                const index = data.findIndex(c => c.channel.id === channel.channel.id);
+                if (index > -1) {
+                    data.splice(index, 1);
+                }
+            });
 
-        const list = map.get(signalQuality);
-        channel.channel.status = status;
-        list.push(channel);
-        return true;
-        // }
-        // return false;
+            const list = map.get(signalQuality);
+            channel.channel.status = status;
+            channel.channel.signal = signalQuality;
+            list.push(channel);
+            return true;
+        }
+        return false;
     }
 
     private selectFastestChannel() {
@@ -207,9 +208,11 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         }
 
         if (this._activeChannel !== channel) {
-            if (this._activeChannel && this._activeChannelRealStatus) {
-                this._activeChannel.channel.status = this._activeChannelRealStatus;
-                if (!channel && this._activeChannel.status !== DataChannelStatuses.UNAVAILABLE) {
+            if (this._activeChannel) {
+                const signalQuality = this._activeChannel.channel.signal,
+                    status = signalQuality === DataChannelSignalQuality.DISABLED ? DataChannelStatuses.UNAVAILABLE : DataChannelStatuses.IDLE;
+                this._activeChannel.channel.status = status;
+                if (!channel && this._activeChannel.status === DataChannelStatuses.UNAVAILABLE) {
                     return;
                 }
             }

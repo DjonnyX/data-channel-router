@@ -1,4 +1,4 @@
-import { DataChannelEvents, DataChannelStatuses } from "../enums";
+import { DataChannelEvents, DataChannelSignalQuality, DataChannelStatuses } from "../enums";
 import { IDataChannel, IDataChannelOptions } from "../interfaces";
 import { Id } from "../types";
 import { EventEmitter, final } from "../utils";
@@ -35,6 +35,16 @@ export class DataChannelExecutor<R = any> extends EventEmitter<ChannelEvents, Da
         if (this._status !== v) {
             this._status = v;
             this.dispatchStatus(v);
+        }
+    }
+
+    private _signal: DataChannelSignalQuality = DataChannelSignalQuality.DISABLED;
+    get signal() {
+        return this._signal;
+    }
+    set signal(v: DataChannelSignalQuality) {
+        if (this._signal !== v) {
+            this._signal = v;
         }
     }
 

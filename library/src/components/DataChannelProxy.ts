@@ -20,6 +20,10 @@ export class DataChannelProxy extends DataChannel {
         return this._channel.status;
     }
 
+    get signal() {
+        return this._channel.signal;
+    }
+
     get externalChannel() {
         return this._externalChannel;
     }
