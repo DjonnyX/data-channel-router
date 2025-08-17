@@ -78,7 +78,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         for (let i = 0, l = channels.length; i < l; i++) {
             const externalChannel = channels[i];
             if (externalChannel) {
-                const channel = new DataChannelProxy(externalChannel);
+                const channel = new DataChannelProxy(externalChannel, this._threadManager);
 
                 this.addChannelToMap(channel);
 
@@ -97,7 +97,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     add(channel: IDataChannelOptions) {
         const externalChannel = channel;
         if (externalChannel) {
-            const channel = new DataChannelProxy(externalChannel);
+            const channel = new DataChannelProxy(externalChannel, this._threadManager);
 
             this.addChannelToMap(channel);
 

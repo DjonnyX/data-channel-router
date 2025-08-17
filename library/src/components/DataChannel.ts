@@ -3,6 +3,7 @@ import { IDataChannel, IDataChannelOptions } from "../interfaces";
 import { Id } from "../types";
 import { EventEmitter } from "../utils";
 import { DataChannelExecutor } from "./DataChannelExecutor";
+import { ThreadManager } from "./ThreadManager";
 
 type ChannelEvents = typeof DataChannelEvents.IDLE | typeof DataChannelEvents.CONNECTED | typeof DataChannelEvents.UNAVAILABLE;
 
@@ -27,16 +28,20 @@ export class DataChannel extends EventEmitter<ChannelEvents, DataChanelListeners
         return this._channel.status;
     }
 
+    get signal() {
+        return this._channel.signal;
+    }
+
     get options() { return this._options; }
 
     get router() { return this._channel.router; }
 
     protected _channel: DataChannelExecutor;
 
-    constructor(private _options: IDataChannelOptions, id?: Id) {
+    constructor(private _options: IDataChannelOptions, threadManager: ThreadManager, id?: Id) {
         super();
 
-        this._channel = new DataChannelExecutor(_options, id);
+        this._channel = new DataChannelExecutor(_options, threadManager, id);
     }
 
     dispose() {
