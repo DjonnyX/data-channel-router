@@ -38,9 +38,5 @@
     "typescript": "^5.9.2",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2"
-  },
-  "dependencies": {
-    "data-channel-router": "^1.0.1",
-    "uninstall": "^0.0.0"
   }
 }
