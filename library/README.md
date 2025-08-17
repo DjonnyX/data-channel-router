@@ -75,6 +75,8 @@ const dc = new DataChannelRouter<IRoutes>({
 dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel | null) => {
     if (channel) {
         // Do something
+        // It is possible to implement a subscription to listen to sockets on a given channel and close sockets of an inactive channel.
+        // See the example of implementation at https://github.com/DjonnyX/data-channel-router/blob/main/src/index.ts
     } else {
         throw Error('No communication channels available.');
     }

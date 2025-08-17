@@ -7,6 +7,8 @@ const formatLogStr = (str: string) => {
     str = str.replace(/(channel2)/ig, `<span style="color:rgb(255, 97, 97);">$1</span>`);
     str = str.replace(/(channel3)/ig, `<span style="color:rgb(218, 40, 235);">$1</span>`);
     str = str.replace(/(channel4)/ig, `<span style="color:rgb(69, 156, 255);">$1</span>`);
+    str = str.replace(/(\[SOCKET\])/ig, `<span style="color:rgb(255, 242, 63);">$1</span>`);
+    str = str.replace(/(\[CLOSE\])/ig, `<span style="color:rgb(241, 201, 201);">$1</span>`);
     str = str.replace(/(\[CONNECT\])/ig, `<span style="color:rgb(118, 223, 86);">$1</span>`);
     str = str.replace(/(\[SUCCESS\])/ig, `<span style="color: #3c7936;">$1</span>`);
     str = str.replace(/(\[ERROR\])/ig, `<span style="color: #9f1717;">$1</span>`);
@@ -107,6 +109,38 @@ const stat = (str: string) => {
         li.innerHTML = result;
     }
     console.info(str);
+}
+
+interface ISocketDataStat {
+    num: number;
+}
+
+class Socket {
+    private _timeout: number;
+
+    get opened() { return this._timeout !== undefined; }
+
+    listen(onSetStats?: (data: ISocketDataStat) => void) {
+        this.receiveData(onSetStats);
+    }
+
+    close() {
+        clearTimeout(this._timeout);
+        this._timeout = undefined;
+    }
+
+    private receiveData(onSetStats?: (data: ISocketDataStat) => void) {
+        const timeout = 100 + Math.round(Math.random() * 2000);
+        this._timeout = setTimeout(() => {
+            if (onSetStats !== undefined) {
+                onSetStats({
+                    num: Math.round(Math.random() * 100),
+                });
+
+                this.receiveData(onSetStats);
+            }
+        }, timeout) as unknown as number;
+    }
 }
 
 class Request {
@@ -246,6 +280,29 @@ const routes = (channel: string, req: Request): IRoutes => ({
     },
 });
 
+const socket1 = new Socket(),
+    socket2 = new Socket(),
+    socket3 = new Socket(),
+    socket4 = new Socket(),
+    socketListen = (channel: string, socket: Socket) => {
+        if (socket.opened) {
+            return;
+        }
+        const cb = (data: ISocketDataStat) => {
+            log(`[SOCKET] Message ${channel}: ${data.num}`);
+            return data;
+        }
+        socket.listen(cb);
+        return cb;
+    },
+    socketDisconnect = (channel: string, socket: Socket) => {
+        if (!socket.opened) {
+            return;
+        }
+        log(`[SOCKET] [CLOSE] ${channel}`);
+        socket.close();
+    };
+
 const req1 = new Request(), channel1: IDataChannelOptions<IRoutes> = {
     ping: () => {
         return req1.ping('[channel1]::[PING]');
@@ -292,6 +349,50 @@ const dc = new DataChannelRouter<IRoutes>({
 dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel | null) => {
     if (channel) {
         const channelNumber = Number(channel.id) + 1;
+        for (let i = 0, l = 4; i < l; i++) {
+            const n = i + 1;
+            if (n === channelNumber) {
+                // Listens to socket by channel number
+                switch (n) {
+                    case 1: {
+                        socketListen('channel1', socket1);
+                        break;
+                    }
+                    case 2: {
+                        socketListen('channel2', socket2);
+                        break;
+                    }
+                    case 3: {
+                        socketListen('channel3', socket3);
+                        break;
+                    }
+                    case 4: {
+                        socketListen('channel4', socket4);
+                        break;
+                    }
+                }
+            } else {
+                // closes the socket by channel number
+                switch (n) {
+                    case 1: {
+                        socketDisconnect('channel1', socket1);
+                        break;
+                    }
+                    case 2: {
+                        socketDisconnect('channel2', socket2);
+                        break;
+                    }
+                    case 3: {
+                        socketDisconnect('channel3', socket3);
+                        break;
+                    }
+                    case 4: {
+                        socketDisconnect('channel4', socket4);
+                        break;
+                    }
+                }
+            }
+        }
         connect(`[CONNECT] Active channel: channel${channelNumber}, status: ${channel.status}`);
     } else {
         error('[ERROR] No communication channels available.');
