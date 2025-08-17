@@ -51,7 +51,6 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
 
     private _pingTimeouts: { [channelId: Id]: number } = {};
 
-    private _activeChannelRealStatus: DataChannelStatuses | null;
     private _activeChannel: DataChannelProxy | null;
     get activeChannel() { return this._activeChannel; }
 
@@ -168,25 +167,26 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             map.set(signalQuality, []);
         }
 
-        // if (channel.channel.status !== status) {
-        map.forEach((data) => {
-            const index = data.findIndex(c => c.channel.id === channel.channel.id);
-            if (index > -1) {
-                data.splice(index, 1);
-            }
-        });
+        if (channel.channel.signal !== signalQuality) {
+            map.forEach((data) => {
+                const index = data.findIndex(c => c.channel.id === channel.channel.id);
+                if (index > -1) {
+                    data.splice(index, 1);
+                }
+            });
 
-        const list = map.get(signalQuality);
-        channel.channel.status = status;
-        list.push(channel);
-        return true;
-        // }
-        // return false;
+            const list = map.get(signalQuality);
+            channel.channel.status = status;
+            channel.channel.signal = signalQuality;
+            list.push(channel);
+            return true;
+        }
+        return false;
     }
 
-    private selectFastestChannel() {
+    private selectFastestChannel(attempt = 5) {
         const map = this._channelsByPriority;
-        let channel: DataChannelProxy | null = null;
+        let channel: DataChannelProxy | null = null, maxSignal = 0;
         for (let i = 0, l = DATA_CHANNEL_SIGNAL_QUALITY_LIST.length; i < l; i++) {
             const signal: DataChannelSignalQuality = DATA_CHANNEL_SIGNAL_QUALITY_LIST[i];
             if (signal === DataChannelSignalQuality.DISABLED) {
@@ -198,8 +198,10 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
                     for (let i = 0, l = channels.length; i < l; i++) {
                         const c = channels[0];
                         if (c.status !== DataChannelStatuses.UNAVAILABLE) {
-                            channel = c;
-                            break;
+                            if (c.signal > maxSignal) {
+                                maxSignal = Math.max(maxSignal, c.signal);
+                                channel = c;
+                            }
                         }
                     }
                 }
@@ -207,19 +209,22 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         }
 
         if (this._activeChannel !== channel) {
-            if (this._activeChannel && this._activeChannelRealStatus) {
-                this._activeChannel.channel.status = this._activeChannelRealStatus;
-                if (!channel && this._activeChannel.status !== DataChannelStatuses.UNAVAILABLE) {
-                    return;
+            if (this._activeChannel) {
+                const signalQuality = this._activeChannel.channel.signal,
+                    status = signalQuality === DataChannelSignalQuality.DISABLED ? DataChannelStatuses.UNAVAILABLE : DataChannelStatuses.IDLE;
+                this._activeChannel.channel.status = status;
+                if (!channel && this._activeChannel.status === DataChannelStatuses.UNAVAILABLE) {
+                    if (attempt > 0) {
+                        this.selectFastestChannel(attempt - 1);
+                    }
                 }
             }
             if (channel) {
-                this._activeChannelRealStatus = channel.channel.status;
                 channel.channel.status = DataChannelStatuses.CONNECTED;
                 this._activeChannel = channel;
                 this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, { id: channel.id, status: channel.status });
             } else {
-                this._activeChannel = this._activeChannelRealStatus = null;
+                this._activeChannel = null;
                 this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, null);
             }
         }

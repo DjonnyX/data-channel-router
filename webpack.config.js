@@ -14,6 +14,10 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
+            },
+            {
                 test: /\.ts?$/,
                 use: 'ts-loader',
                 exclude: /node_modules/,
@@ -27,7 +31,10 @@ module.exports = {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
     },
-   plugins: [
-    new HtmlWebpackPlugin({ template: './src/index.html' }),
-  ],
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: './src/index.html',
+            favicon: "public/favicon.ico",
+        }),
+    ],
 };

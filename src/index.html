@@ -2,11 +2,45 @@
 
 <head>
     <link href="./styles.css" rel="stylesheet">
-    <script src="./index.ts" defer></script>
 </head>
 
 <body>
-    <h1>Data channel router</h1>
+    <div class="wrapper">
+        <div class="vl-section block cap">
+            <h1 class="center">data-channel-router</h1>
+            <p class="l">Communication channel router</p>
+            <p class="l m">&#64;author: djonnyx&#64;gmail.com</p>
+            <img class="logo" src="logo-center.png" />
+            <div class="version"><span>v 1.0.1</span></div>
+        </div>
+
+        <div class="vl-section">
+            <div class="vl-section__container">
+                <h2>Test</h2>
+                <div class="view-container">
+                    <div class="view">
+                        <div id="error1" class="error" style="display: none;">
+                            No communication channels available.
+                        </div>
+                        <div id="workspace1" class="workspace" style="display: none;">
+                            <div class="workspace-content">
+                                <img class="logo" src="logo.png" />
+                                <div>Data transporting...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="li1" class="list stats">
+                    <div id="li1-scroller" class="scroller">
+                    </div>
+                </div>
+                <div id="li2" class="list log">
+                    <div id="li2-scroller" class="scroller">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
