@@ -1,4 +1,4 @@
-import { DEFAULT_CHECK_TIMEOUT_AFTER_COMPLETE, DEFAULT_MAX_THREADS } from "../const";
+import { DEFAULT_MAX_THREADS } from "../const";
 import { ThreadEvents } from "../enums";
 import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
 import { IThreadManagerOptions } from "../interfaces";
@@ -36,11 +36,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
 
     get finishedThreads() { return this._complitedThreads + this._rejectedThreads; }
 
-    private _checkTimeoutAfterComplete = DEFAULT_CHECK_TIMEOUT_AFTER_COMPLETE;
-
-    private _checkAfterCompleteDebounced = debounce(() => {
-        this.startNextThreadIfNeed();
-    }, this._checkTimeoutAfterComplete);
+    private _paused = true;
 
     private _onThreadStartedHandler = () => {
         this._threadsInWork++;
@@ -72,6 +68,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
     }
 
     add(thread: Thread) {
+        this._paused = false;
         this._threadQueue.push(thread);
         this.startNextThreadIfNeed();
     }
@@ -81,7 +78,18 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
         this.startNextThreadIfNeed();
     }
 
+    play() {
+        this._paused = true;
+    }
+
+    pause() {
+        this._paused = false;
+    }
+
     protected startNextThreadIfNeed() {
+        if (this._paused) {
+            return;
+        }
         while (this._threadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
             const thread = this._threadQueue.shift();
             this.startThread(thread);
@@ -110,9 +118,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
     }
 
     dispose() {
-        if (this._checkAfterCompleteDebounced) {
-            this._checkAfterCompleteDebounced.dispose();
-        }
+        this._paused = true;
 
         while (this._threadQueue.length > 0) {
             const thread = this._threadQueue.pop();
