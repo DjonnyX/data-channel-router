@@ -31,7 +31,7 @@ export const appendRoute = <R>(router: Object, routes: R, threadManager: ThreadM
                             }
                         } else {
                             console.error(`When calling route ${route}, no available communication channels were found.`);
-                            thread.reject();
+                            thread.waitForConnect();
                         }
                     }
                 })

@@ -7,5 +7,6 @@
 export enum ThreadEvents {
     STARTED = 'started',
     REJECTED = 'rejected',
+    WAIT_FOR_CONNECTION = 'wait-for-connection',
     COMPLITED = 'complited',
 };
