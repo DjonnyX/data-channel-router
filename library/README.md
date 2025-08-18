@@ -110,6 +110,7 @@ Properties
 
 | Property | Type | Description |
 |---|---|---|
+| buffering | number | Readonly. Returns the buffering value |
 | isAvailable | boolean | Readonly. Returns true if there are data channels available. |
 | router | R | Generic type. Router. |
 | stats | [IDataChannelsStats](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelsStats.ts) | Readonly. Returns statistics for data channels. |
