@@ -2,7 +2,7 @@ import { DEFAULT_MAX_THREADS } from "../const";
 import { ThreadEvents } from "../enums";
 import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
 import { IThreadManagerOptions } from "../interfaces";
-import { debounce, EventEmitter } from "../utils";
+import { EventEmitter } from "../utils";
 import { Thread } from "./Thread";
 
 type Events = typeof ThreadManagerEvents.STARTED | typeof ThreadManagerEvents.COMPLITED;
@@ -21,6 +21,8 @@ type Listeners = OnStartedListener | OnCompletedListener;
  */
 export class ThreadManager extends EventEmitter<Events, Listeners> {
     private _threadQueue: Array<Thread> = [];
+
+    private _processingThreadQueue: Array<Thread> = [];
 
     private _maxThreads: number = DEFAULT_MAX_THREADS;
     get maxThreads() { return this._maxThreads; }
@@ -57,6 +59,11 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
         this.startNextThreadIfNeed();
     };
 
+    private _onThreadWaitForConnectionHandler = (thread: Thread) => {
+        this._threadsInWork--;
+        thread.removeAllListeners();
+    };
+
     private _onThreadComplitedHandler = (thread: Thread) => {
         this._threadsInWork--;
         this._complitedThreads++;
@@ -72,51 +79,58 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
     }
 
     add(thread: Thread) {
-        this._paused = false;
         this._threadQueue.push(thread);
         this.startNextThreadIfNeed();
     }
 
     run() {
+        this._paused = false;
         this.dispatch(ThreadManagerEvents.STARTED);
         this.startNextThreadIfNeed();
     }
 
     play() {
-        this._paused = true;
+        this._paused = false;
+        this.startNextThreadIfNeed();
     }
 
     pause() {
-        this._paused = false;
+        this._paused = true;
     }
 
     protected startNextThreadIfNeed() {
         if (this._paused) {
             return;
         }
+        while (this._processingThreadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
+            const thread = this._processingThreadQueue.shift();
+            this.startThread(thread);
+        }
         while (this._threadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
             const thread = this._threadQueue.shift();
+            this._processingThreadQueue.push(thread);
             this.startThread(thread);
         }
     }
 
     protected startThread(thread: Thread) {
-        if (this._paused || !thread) {
+        if (!thread) {
             return;
         }
         thread.addEventListener(ThreadEvents.STARTED, this._onThreadStartedHandler);
         thread.addEventListener(ThreadEvents.REJECTED, this._onThreadRejectedHandler);
+        thread.addEventListener(ThreadEvents.WAIT_FOR_CONNECTION, this._onThreadWaitForConnectionHandler);
         thread.addEventListener(ThreadEvents.COMPLITED, this._onThreadComplitedHandler);
         thread.start();
     }
 
     protected removeThread(thread: Thread) {
-        if (this._paused || !thread) {
+        if (!thread) {
             return;
         }
-        const index = this._threadQueue.findIndex((t => t === thread));
+        const index = this._processingThreadQueue.findIndex((t => t === thread));
         if (index > -1) {
-            this._threadQueue.splice(index, 1);
+            this._processingThreadQueue.splice(index, 1);
             thread.dispose();
         }
     }

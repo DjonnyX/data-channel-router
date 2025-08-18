@@ -3,15 +3,17 @@ import { IThreadOptions } from "../interfaces";
 import { Id } from "../types";
 import { EventEmitter } from "../utils";
 
-type Events = typeof ThreadEvents.STARTED | typeof ThreadEvents.REJECTED | typeof ThreadEvents.COMPLITED;
+type Events = typeof ThreadEvents.STARTED | typeof ThreadEvents.REJECTED | typeof ThreadEvents.WAIT_FOR_CONNECTION | typeof ThreadEvents.COMPLITED;
 
 type OnStartedListener = (thread: Thread) => void;
 
 type OnRejectedListener = (thread: Thread) => void;
 
+type OnWaitForConnectionListener = (thread: Thread) => void;
+
 type OnComplitedListener = (thread: Thread) => void;
 
-type Listeners = OnStartedListener | OnRejectedListener | OnComplitedListener;
+type Listeners = OnStartedListener | OnRejectedListener | OnWaitForConnectionListener | OnComplitedListener;
 
 /**
  * Thread
@@ -50,6 +52,10 @@ export class Thread extends EventEmitter<Events, Listeners> {
 
     reject() {
         this.dispatch(ThreadEvents.REJECTED, this);
+    }
+
+    waitForConnect() {
+        this.dispatch(ThreadEvents.WAIT_FOR_CONNECTION, this);
     }
 
     complete() {
