@@ -248,9 +248,11 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             if (channel) {
                 channel.channel.status = DataChannelStatuses.CONNECTED;
                 this._activeChannel = channel;
+                this._routeThreadManager.play();
                 this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, { id: channel.id, status: channel.status });
             } else {
                 this._activeChannel = null;
+                this._routeThreadManager.pause();
                 this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, null);
             }
         }
