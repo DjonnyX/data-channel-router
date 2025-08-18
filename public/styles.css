@@ -176,24 +176,43 @@ input {
     scrollbar-width: 0;
 }
 
+.list .scroller {
+    width: 100%;
+    color: #5b5b5b;
+    font-size: 12px;
+}
+
 .list.stats {
-    height: 60px;
+    height: 68px;
     overflow: hidden;
     border-bottom: none;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
 
-.list.log {
-    height: 300px;
+.list.extra-info {
+    height: 24px;
+    overflow: hidden;
+    border-top: none;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
 
-.list .scroller {
-    width: 100%;
-    color: #cb9b67;
-    font-size: 12px;
+.list.extra-info .scroller {
+    color: #bdbdbd;
+}
+
+.list.stats .scroller,
+.list.extra-info .scroller {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.list.log {
+    height: 300px;
+    border-radius: 0;
 }
 
 .list::-webkit-scrollbar {
@@ -206,7 +225,7 @@ input {
 
 .view {
     position: relative;
-    height: 140px;
+    height: 100px;
     width: 100%;
     border-radius: 3px;
     box-shadow: 1px 2px 8px 4px rgba(0, 0, 0, 0.075);
@@ -252,5 +271,5 @@ input {
 
 .view .workspace img {
     filter: saturate(0) brightness(5) brightness(0.2);
-    width: 74px;
+    width: 54px;
 }

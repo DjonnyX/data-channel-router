@@ -36,6 +36,10 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
 
     get finishedThreads() { return this._complitedThreads + this._rejectedThreads; }
 
+    get buffering() {
+        return this._threadQueue.length;
+    }
+
     private _paused = true;
 
     private _onThreadStartedHandler = () => {
@@ -97,7 +101,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
     }
 
     protected startThread(thread: Thread) {
-        if (!thread) {
+        if (this._paused || !thread) {
             return;
         }
         thread.addEventListener(ThreadEvents.STARTED, this._onThreadStartedHandler);
@@ -107,7 +111,7 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
     }
 
     protected removeThread(thread: Thread) {
-        if (!thread) {
+        if (this._paused || !thread) {
             return;
         }
         const index = this._threadQueue.findIndex((t => t === thread));

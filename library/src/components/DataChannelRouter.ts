@@ -1,7 +1,7 @@
 import { DATA_CHANNEL_SIGNAL_QUALITY_LIST, DEFAULT_PING_TIMEOUT } from "../const";
 import { DataChannelSignalQuality, DataChannelStatuses } from "../enums";
 import { DataChannelRouterEvents } from "../enums/DataChannelRouterEvents";
-import { IDataChannel, IDataChannelOptions, IDataChannelRouterOptions, IDelayMap } from "../interfaces";
+import { IDataChannel, IDataChannelOptions, IDataChannelRouterOptions, IDataChannelsStats, IDelayMap } from "../interfaces";
 import { Id } from "../types";
 import { calculateSignalQuality, EventEmitter, final } from "../utils";
 import { appendRoute } from "../utils/appendRoute";
@@ -46,7 +46,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
      * Returns statistics for data channels
      */
     get stats() {
-        const map = this._channelsByPriority, result: { [channelId: Id]: { status: DataChannelStatuses, signal: DataChannelSignalQuality } } = {};
+        const map = this._channelsByPriority, result: IDataChannelsStats = {};
         for (let i = 0, l = DATA_CHANNEL_SIGNAL_QUALITY_LIST.length; i < l; i++) {
             const signal: DataChannelSignalQuality = DATA_CHANNEL_SIGNAL_QUALITY_LIST[i];
             if (map.has(signal)) {
@@ -59,6 +59,13 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             }
         }
         return result;
+    }
+
+    /**
+     * Returns the buffering value
+     */
+    get buffering() {
+        return this._routeThreadManager.buffering;
     }
 
     private _pingTimeout: number;
