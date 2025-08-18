@@ -46,7 +46,7 @@ const log = (str: string) => {
     logStr += formatLogStr(str) + '<br/>';
     const li = document.querySelector('#li2-scroller');
     if (li) {
-        li.innerHTML = logStr;
+        li.innerHTML = `<div>${logStr}</div>`;
     }
 
     const li1 = document.querySelector('#li2');
@@ -60,7 +60,7 @@ const error = (str: string) => {
     logStr += formatErrorStr(str) + '<br/>';
     const li = document.querySelector('#li2-scroller');
     if (li) {
-        li.innerHTML = logStr;
+        li.innerHTML = `<div>${logStr}</div>`;
     }
 
     const li1 = document.querySelector('#li2');
@@ -79,11 +79,18 @@ const error = (str: string) => {
     }
 }
 
+const info = (str: string) => {
+    const li = document.querySelector('#li3-scroller');
+    if (li) {
+        li.innerHTML =`<div>${str}</div>`;
+    }
+}
+
 const connect = (str: string) => {
     logStr += formatConnectStr(str) + '<br/>';
     const li = document.querySelector('#li2-scroller');
     if (li) {
-        li.innerHTML = logStr;
+        li.innerHTML = `<div>${logStr}</div>`;
     }
 
     const li1 = document.querySelector('#li2');
@@ -106,7 +113,7 @@ const stat = (str: string) => {
     const result = formatStatsStr(str);
     const li = document.querySelector('#li1-scroller');
     if (li) {
-        li.innerHTML = result;
+        li.innerHTML = `<div>${result}</div>`;
     }
     console.info(str);
 }
@@ -241,6 +248,7 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             log(`[ERROR] Request: GET ${route} (${delay}ms)`);
         }
+        info(`Buffering: ${dc.buffering}`);
     },
     createUser: async (userId: string, data: { name: string; }) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
@@ -253,6 +261,7 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             log(`[ERROR] Request: POST ${route} (${delay}ms)`);
         }
+        info(`Buffering: ${dc.buffering}`);
     },
     updateUser: async (userId: string, data: { name: string; }) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
@@ -265,6 +274,7 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             log(`[ERROR] Request: PUT ${route} (${delay}ms)`);
         }
+        info(`Buffering: ${dc.buffering}`);
     },
     deleteUser: async (userId: string) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
@@ -277,6 +287,7 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             log(`[ERROR] Request: DELETE ${route} (${delay}ms)`);
         }
+        info(`Buffering: ${dc.buffering}`);
     },
 });
 
@@ -290,6 +301,7 @@ const socket1 = new Socket(),
         }
         const cb = (data: ISocketDataStat) => {
             log(`[SOCKET] Message ${channel}: ${data.num}`);
+            info(`Buffering: ${dc.buffering}`);
             return data;
         }
         socket.listen(cb);
@@ -413,6 +425,7 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
 setInterval(() => {
     if (!dc.isAvailable) {
         error('[ERROR] No communication channels available.');
+        info(`Buffering: ${dc.buffering}`);
         return;
     }
     const routeNum = Math.round(Math.random() * 4),

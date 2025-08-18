@@ -8,4 +8,5 @@ import { DataChannelSignalQuality, DataChannelStatuses } from "../enums";
  */
 export interface IDataChannelsStats {
     [channelId: number]: { status: DataChannelStatuses, signal: DataChannelSignalQuality };
+    [channelId: string]: { status: DataChannelStatuses, signal: DataChannelSignalQuality };
 }
