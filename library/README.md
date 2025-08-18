@@ -1,6 +1,6 @@
 # data-channel-router
 
-Communication channel router
+A service that ensures continuous communication, which automatically switches between available channels in the event of failures.
 
 <img width="1033" height="171" alt="logo-center" src="https://github.com/user-attachments/assets/f889b82c-bfcf-45a9-8926-b3250aae6eb8" />
 
