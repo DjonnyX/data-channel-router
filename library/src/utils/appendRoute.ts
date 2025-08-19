@@ -2,6 +2,7 @@ import { DataChannelRouter } from "../components";
 import { Thread } from "../components/Thread";
 import { ThreadManager } from "../components/ThreadManager";
 import { DataChannelRouterEvents } from "../enums";
+import { executeHandler } from "./executeHandler";
 
 /**
  * Append route util
@@ -26,7 +27,7 @@ export const appendRoute = <R>(router: Object, routes: R, threadManager: ThreadM
                                 console.warn(`Route ${route} is not implemented in data channel id:${ctx.activeChannel.id}.`);
                             }
                             try {
-                                await handler(...args);
+                                await executeHandler(handler, ...args);
                                 thread.complete();
                             } catch (e) {
                                 thread.reject();

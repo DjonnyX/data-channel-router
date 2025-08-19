@@ -1,4 +1,4 @@
-import { DATA_CHANNEL_SIGNAL_QUALITY_LIST, DEFAULT_PING_TIMEOUT } from "../const";
+import { DATA_CHANNEL_SIGNAL_QUALITY_LIST, DEFAULT_MAX_THREADS, DEFAULT_PING_TIMEOUT } from "../const";
 import { DataChannelEvents, DataChannelSignalQuality, DataChannelStatuses } from "../enums";
 import { DataChannelRouterEvents } from "../enums/DataChannelRouterEvents";
 import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
@@ -6,6 +6,8 @@ import { IDataChannelInfo, IDataChannelOptions, IDataChannelRouterOptions, IData
 import { Id } from "../types";
 import { calculateSignalQuality, EventEmitter, final } from "../utils";
 import { appendRoute } from "../utils/appendRoute";
+import { inputDelayMap } from "../utils/inputDelayMap";
+import { inputNumber } from "../utils/inputNumber";
 import { DataChannelExecutor } from "./DataChannelExecutor";
 import { DataChannelProxy } from "./DataChannelProxy";
 import { Thread } from "./Thread";
@@ -108,16 +110,16 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
     constructor(options: IDataChannelRouterOptions<R>) {
         super();
 
-        this._pingTimeout = options.pingTimeout ?? DEFAULT_PING_TIMEOUT;
+        this._pingTimeout = inputNumber(options?.pingTimeout, DEFAULT_PING_TIMEOUT);
 
-        this._delayMap = options.delayMap;
+        this._delayMap = inputDelayMap(options.delayMap);
 
         this._pingThreadManager = new ThreadManager({
-            maxThreads: options?.maxThreads,
+            maxThreads: inputNumber(options?.maxPingThreads, DEFAULT_MAX_THREADS),
         });
 
         this._routeThreadManager = new ThreadManager({
-            maxThreads: options?.maxThreads,
+            maxThreads: inputNumber(options?.maxThreads, DEFAULT_MAX_THREADS),
         });
         this._routeThreadManager.addEventListener(ThreadManagerEvents.BUFFERING, this._onRouteThreadManagerBuffering);
 
