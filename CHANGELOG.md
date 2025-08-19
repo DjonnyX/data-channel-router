@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.0.16] - 2025-08-19
+
+Some vulnerabilities have been fixed
+  
+### Fixed 
+
+- Added validation of incoming parameters
+
 ## [1.0.15] - 2025-08-19
 
 Improving the library API description

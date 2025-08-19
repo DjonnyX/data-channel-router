@@ -6,7 +6,7 @@ A modern library designed for robust communication in scenarios where multiple d
 
 [Live demo](https://data-channel-router.eugene-grebennikov.pro/)
 
-![Preview](https://github.com/user-attachments/assets/0751f46d-5416-41d1-a847-e99f00ff3666)
+![Preview](https://github.com/user-attachments/assets/2fdfe380-397e-488a-9cf1-864af4bf789f)
 
 | Feature                                | Description                                                                                            |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
