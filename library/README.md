@@ -1,12 +1,21 @@
 # data-channel-router
 
-A service that ensures continuous communication, which automatically switches between available channels in the event of failures.
+A modern library designed for robust communication in scenarios where multiple data channels are available (e.g., different service endpoints, fallback paths, etc.). It automatically manages failover, monitors health, enables customizable concurrency, and offers event-based hooks to keep your application responsive and resilient.
 
 <img width="1033" height="171" alt="logo-center" src="https://github.com/user-attachments/assets/f889b82c-bfcf-45a9-8926-b3250aae6eb8" />
 
-[Demo](https://data-channel-router.eugene-grebennikov.pro/)
+[Live demo](https://data-channel-router.eugene-grebennikov.pro/)
 
 ![Preview](https://github.com/user-attachments/assets/0751f46d-5416-41d1-a847-e99f00ff3666)
+
+| Feature                                | Description                                                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Automatic Failover**                 | Switches between multiple defined channels upon failure                                                |
+| **Ping Mechanism**                     | Uses `ping` functions for health checking and determines signal quality using a configurable delay map |
+| **Concurrency Controls**               | Configure how many ping or route requests run in parallel (`maxThreads`, `maxPingThreads`)             |
+| **Event-Driven**                       | Emits events for stats updates, failures, recoveries, buffering, and channel changes                   |
+| **Stat Tracking & Availability Check** | Exposes properties like `.stats`, `.isAvailable`, and a `.router` object to dispatch route calls       |
+| **No Dependencies**                    | Lightweight setup, completely self-contained                                              |
 
 ## Installation
 
@@ -14,8 +23,9 @@ Run
 ```bash
 npm i data-channel-router
 ```
+Pretty straightforward — no dependencies
 
-## Example
+## Basic Usage Example
 
 ```ts
 // Channel route description interface
