@@ -17,6 +17,8 @@ A modern library designed for robust communication in scenarios where multiple d
 | **Stat Tracking & Availability Check** | Exposes properties like `.stats`, `.isAvailable`, and a `.router` object to dispatch route calls       |
 | **No Dependencies**                    | Lightweight setup, completely self-contained                                              |
 
+<br/>
+
 ## Installation
 
 Run
@@ -156,14 +158,14 @@ Events
 
 | Name | Type | Description |
 |---|---|---|
-| DataChannelRouterEvents.CHANNEL_CHANGE | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void | Emitted when the data transmission channel changes. |
-| DataChannelRouterEvents.CHANNEL_UNAVAILABLE | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void => void | Emitted when the data channel becomes unavailable. |
-| DataChannelRouterEvents.CHANNEL_RECOVERY | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void => void | Emitted when a previously faulty channel becomes operational again. |
-| DataChannelRouterEvents.CHANGE | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts) \| null) => void => void | Emit when changing the statuses of the channels. |
-| DataChannelRouterEvents.PING_FAILURE | (channelId: [Id](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/types/id.ts)) => void => void | Emitted during ping failure. |
-| DataChannelRouterEvents.ROUTE_ERROR | (routeName: string, channelId: Id) => void | Emitted when a route call fails. |
-| DataChannelRouterEvents.STATS | (stats: [IDataChannelsStats](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelsStats.ts)) => void | Emitted when the signal and status in data channels changes. |
-| DataChannelRouterEvents.BUFFERING | (bufferSize: number) => void | Emitted when the buffer size changes. |
+| [DataChannelRouterEvents.CHANNEL_CHANGE](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelRouterEvents.ts) | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void | Emitted when the data transmission channel changes. |
+| [DataChannelRouterEvents.CHANNEL_UNAVAILABLE](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelRouterEvents.ts) | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void => void | Emitted when the data channel becomes unavailable. |
+| [DataChannelRouterEvents.CHANNEL_RECOVERY](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelRouterEvents.ts) | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void => void | Emitted when a previously faulty channel becomes operational again. |
+| [DataChannelRouterEvents.CHANGE](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelRouterEvents.ts) | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts) \| null) => void => void | Emit when changing the statuses of the channels. |
+| [DataChannelRouterEvents.PING_FAILURE](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelRouterEvents.ts) | (channelId: [Id](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/types/id.ts)) => void => void | Emitted during ping failure. |
+| [DataChannelRouterEvents.ROUTE_ERROR](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelRouterEvents.ts) | (routeName: string, channelId: [Id](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/types/id.ts)) => void | Emitted when a route call fails. |
+| [DataChannelRouterEvents.STATS](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelRouterEvents.ts) | (stats: [IDataChannelsStats](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelsStats.ts)) => void | Emitted when the signal and status in data channels changes. |
+| [DataChannelRouterEvents.BUFFERING](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/enums/DataChannelRouterEvents.ts) | (bufferSize: number) => void | Emitted when the buffer size changes. |
 
 <br/>
 
