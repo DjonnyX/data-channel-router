@@ -1,0 +1,42 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+
+## [1.0.12] - 2025-08-19
+  
+Critical errors fixed
+
+### Fixed
+ 
+- Fixed duplicate start of stream processing
+
+## [1.0.11] - 2025-08-19
+  
+Improving the demo
+
+### Improved
+ 
+- Improved demo styling
+
+## [1.0.10] - 2025-08-18
+  
+Improved project description
+
+### Improved
+ 
+- Improved project description in README.md
+
+## [1.0.9] - 2025-08-18
+  
+Critical errors fixed
+
+### Fixed
+ 
+- Fixed buffer flush after disconnect
+
+## [1.0.8] - 2025-08-18
+  
+Improvements added
+
+### Added
+ 
+- Added buffering property
