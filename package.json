@@ -1,6 +1,6 @@
 {
   "name": "data-channel-router",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Data channel router",
   "scripts": {
     "start": "npm run serve",

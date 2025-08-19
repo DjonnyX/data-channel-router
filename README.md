@@ -19,6 +19,21 @@ A modern library designed for robust communication in scenarios where multiple d
 
 <br/>
 
+## Pros & Potential Use Cases
+
+**Advantages**:
+
+Reliability: Built-in failover and health checks mitigate channel disruptions.
+Efficiency: Concurrency settings help you fine-tune resource usage and latency.
+Event Rich: Easy to integrate observability and reactive patterns.
+Lightweight & Dependency-Free: Eliminates risk of dependency bloat or conflicts.
+
+**Ideal Scenarios**:
+
+Multi-endpoint APIs (e.g., primary + fallback service endpoints).
+Real-time systems where channel latency and reliability matter.
+Distributed networks or microservice architectures where fallback resilience is critical.
+
 ## Installation
 
 Run

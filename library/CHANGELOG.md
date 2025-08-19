@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.0.17] - 2025-08-19
+
+Improving the library API description
+  
+### Improved 
+
+- README.md updated
+- Improved demo styles
+
 ## [1.0.16] - 2025-08-19
 
 Some vulnerabilities have been fixed
