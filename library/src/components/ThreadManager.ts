@@ -46,10 +46,6 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
 
     private _onThreadStartedHandler = () => {
         this._threadsInWork++;
-
-        if (this._threadsInWork > this._maxThreads) {
-            console.warn(`The number of threads (${this._threadsInWork}) has exceeded the maximum value.`);
-        }
     };
 
     private _onThreadRejectedHandler = (thread: Thread) => {
@@ -102,25 +98,36 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
         if (this._paused) {
             return;
         }
-        while (this._processingThreadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
+        const waitToConnectionStarted: Array<Thread> = [];
+        let processingThreadQueueLength = this._processingThreadQueue.length;
+        while (processingThreadQueueLength > 0 && this._threadsInWork < this._maxThreads) {
+            processingThreadQueueLength--;
+            if (this._processingThreadQueue[0].hasEventListener(ThreadEvents.STARTED, this._onThreadStartedHandler)) {
+                continue;
+            }
             const thread = this._processingThreadQueue.shift();
+            waitToConnectionStarted.push(thread);
             this.startThread(thread);
         }
         while (this._threadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
-            const thread = this._threadQueue.shift();
-            this._processingThreadQueue.push(thread);
-            this.startThread(thread);
+            const thread = this._threadQueue.shift(), started = waitToConnectionStarted.includes(thread);
+            if (!started) {
+                this._processingThreadQueue.push(thread);
+            }
+            this.startThread(thread, started);
         }
     }
 
-    protected startThread(thread: Thread) {
+    protected startThread(thread: Thread, started = false) {
         if (!thread) {
             return;
         }
-        thread.addEventListener(ThreadEvents.STARTED, this._onThreadStartedHandler);
-        thread.addEventListener(ThreadEvents.REJECTED, this._onThreadRejectedHandler);
-        thread.addEventListener(ThreadEvents.WAIT_FOR_CONNECTION, this._onThreadWaitForConnectionHandler);
-        thread.addEventListener(ThreadEvents.COMPLITED, this._onThreadComplitedHandler);
+        if (!started) {
+            thread.addEventListener(ThreadEvents.STARTED, this._onThreadStartedHandler);
+            thread.addEventListener(ThreadEvents.REJECTED, this._onThreadRejectedHandler);
+            thread.addEventListener(ThreadEvents.WAIT_FOR_CONNECTION, this._onThreadWaitForConnectionHandler);
+            thread.addEventListener(ThreadEvents.COMPLITED, this._onThreadComplitedHandler);
+        }
         thread.start();
     }
 
