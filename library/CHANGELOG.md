@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.0.14] - 2025-08-19
+
+Improving library description
+  
+### Improved 
+
+- README.md updated
+
 ## [1.0.13] - 2025-08-19
   
 ### Added 
