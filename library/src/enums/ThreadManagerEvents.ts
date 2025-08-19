@@ -7,4 +7,5 @@
 export enum ThreadManagerEvents {
     STARTED = 'started',
     COMPLITED = 'complited',
+    BUFFERING = 'buffering',
 };

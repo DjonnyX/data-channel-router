@@ -8,7 +8,7 @@ type ChannelEvents = typeof DataChannelEvents.IDLE | typeof DataChannelEvents.CO
 
 type OnIdleListener = (channel: IDataChannel) => void;
 
-type OnConnectedListener = (channel: IDataChannel) => void;
+type OnConnectedListener = (channel: IDataChannel, previousStatus: DataChannelStatuses) => void;
 
 type OnUnavailableListener = (channel: IDataChannel) => void;
 
@@ -33,8 +33,9 @@ export class DataChannelExecutor<R = any> extends EventEmitter<ChannelEvents, Da
     }
     set status(v: DataChannelStatuses) {
         if (this._status !== v) {
+            const previousStatus = this._status;
             this._status = v;
-            this.dispatchStatus(v);
+            this.dispatchStatus(v, previousStatus);
         }
     }
 
@@ -62,10 +63,10 @@ export class DataChannelExecutor<R = any> extends EventEmitter<ChannelEvents, Da
         }
     }
 
-    protected dispatchStatus(status: DataChannelStatuses) {
+    protected dispatchStatus(status: DataChannelStatuses, previousStatus: DataChannelStatuses) {
         switch (status) {
             case DataChannelStatuses.CONNECTED: {
-                this.dispatch(DataChannelEvents.CONNECTED, this);
+                this.dispatch(DataChannelEvents.CONNECTED, this, previousStatus);
                 break;
             }
             case DataChannelStatuses.IDLE: {
