@@ -80,13 +80,13 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
         // It is possible to implement a subscription to listen to sockets on a given channel and close sockets of an inactive channel.
         // See the example of implementation at https://github.com/DjonnyX/data-channel-router/blob/main/src/index.ts
     } else {
-        throw Error('No communication channels available.');
+        throw Error('No data channels available.');
     }
 });
 
 // Next, each time we call a route, we first check the availability of the router.
 if (!dc.isAvailable) {
-    throw Error('No communication channels available.');
+    throw Error('No data channels available.');
 } else {
     dc.router.getUser('666');
 }
