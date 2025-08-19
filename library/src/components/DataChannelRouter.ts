@@ -1,21 +1,39 @@
 import { DATA_CHANNEL_SIGNAL_QUALITY_LIST, DEFAULT_PING_TIMEOUT } from "../const";
-import { DataChannelSignalQuality, DataChannelStatuses } from "../enums";
+import { DataChannelEvents, DataChannelSignalQuality, DataChannelStatuses } from "../enums";
 import { DataChannelRouterEvents } from "../enums/DataChannelRouterEvents";
-import { IDataChannel, IDataChannelOptions, IDataChannelRouterOptions, IDataChannelsStats, IDelayMap } from "../interfaces";
+import { ThreadManagerEvents } from "../enums/ThreadManagerEvents";
+import { IDataChannelInfo, IDataChannelOptions, IDataChannelRouterOptions, IDataChannelsStats, IDelayMap } from "../interfaces";
 import { Id } from "../types";
 import { calculateSignalQuality, EventEmitter, final } from "../utils";
 import { appendRoute } from "../utils/appendRoute";
+import { DataChannelExecutor } from "./DataChannelExecutor";
 import { DataChannelProxy } from "./DataChannelProxy";
 import { Thread } from "./Thread";
 import { ThreadManager } from "./ThreadManager";
 
-type Events = typeof DataChannelRouterEvents.CHANNEL_CHANGE | typeof DataChannelRouterEvents.CHANGE;
+type Events = typeof DataChannelRouterEvents.CHANNEL_CHANGE | typeof DataChannelRouterEvents.CHANNEL_UNAVAILABLE
+    | typeof DataChannelRouterEvents.CHANNEL_RECOVERY | typeof DataChannelRouterEvents.PING_FAILURE
+    | typeof DataChannelRouterEvents.ROUTE_ERROR | typeof DataChannelRouterEvents.CHANGE
+    | typeof DataChannelRouterEvents.STATS | typeof DataChannelRouterEvents.BUFFERING;
 
-type OnChannelChangeListener = (channel: IDataChannel) => void;
+type OnChannelChangeListener = (channel: IDataChannelInfo) => void;
 
-type OnChangeListener = (channelId: Id, status: DataChannelStatuses) => void;
+type OnChannelUnavailableListener = (channel: IDataChannelInfo) => void;
 
-type Listeners = OnChannelChangeListener | OnChangeListener;
+type OnChannelRecoveryListener = (channel: IDataChannelInfo) => void;
+
+type OnChangeListener = (channel: IDataChannelInfo | null) => void;
+
+type OnPingFailureListener = (channelId: Id) => void;
+
+type OnRouteErrorListener = (routeName: string, channelId: Id) => void;
+
+type OnStatsListener = (stats: IDataChannelsStats) => void;
+
+type OnBufferingListener = (bufferSize: number) => void;
+
+type Listeners = OnChannelChangeListener | OnChannelUnavailableListener | OnChannelRecoveryListener | OnChangeListener
+    | OnPingFailureListener | OnRouteErrorListener | OnStatsListener | OnBufferingListener;
 
 /**
  * Data channel router
@@ -42,24 +60,11 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
      */
     get router() { return this._router as R; }
 
+    private _stats: IDataChannelsStats = this.generateStats();
     /**
      * Returns statistics for data channels
      */
-    get stats() {
-        const map = this._channelsByPriority, result: IDataChannelsStats = {};
-        for (let i = 0, l = DATA_CHANNEL_SIGNAL_QUALITY_LIST.length; i < l; i++) {
-            const signal: DataChannelSignalQuality = DATA_CHANNEL_SIGNAL_QUALITY_LIST[i];
-            if (map.has(signal)) {
-                const channels = map.get(signal);
-                if (channels.length > 0) {
-                    for (let channel of channels) {
-                        result[channel.id] = { signal, status: channel.status };
-                    }
-                }
-            }
-        }
-        return result;
-    }
+    get stats() { return { ...this._stats }; }
 
     /**
      * Returns the buffering value
@@ -80,6 +85,26 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
 
     private _delayMap: IDelayMap;
 
+    private _onChannelConnectedHandler = (channel: DataChannelExecutor, previousStatus: DataChannelStatuses) => {
+        if (previousStatus === DataChannelStatuses.UNAVAILABLE) {
+            this.dispatch(DataChannelRouterEvents.CHANNEL_RECOVERY, { id: channel.id, status: channel.status, signal: channel.signal });
+        }
+        this.changeDataChannel();
+    };
+
+    private _onChannelIdleHandler = () => {
+        this.changeDataChannel();
+    };
+
+    private _onChannelUnavailableHandler = (channel: DataChannelExecutor) => {
+        this.dispatch(DataChannelRouterEvents.CHANNEL_UNAVAILABLE, { id: channel.id, status: channel.status, signal: channel.signal });
+        this.changeDataChannel();
+    };
+
+    private _onRouteThreadManagerBuffering = (bufferSize: number) => {
+        this.dispatch(DataChannelRouterEvents.BUFFERING, bufferSize);
+    };
+
     constructor(options: IDataChannelRouterOptions<R>) {
         super();
 
@@ -94,6 +119,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         this._routeThreadManager = new ThreadManager({
             maxThreads: options?.maxThreads,
         });
+        this._routeThreadManager.addEventListener(ThreadManagerEvents.BUFFERING, this._onRouteThreadManagerBuffering);
 
         if (options?.channels) {
             this.createInitialChannels(options.channels);
@@ -109,6 +135,9 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
                 appendRoute(this._router, externalChannel.routes, this._routeThreadManager, this);
 
                 const channel = new DataChannelProxy(externalChannel);
+                channel.channel.addEventListener(DataChannelEvents.CONNECTED, this._onChannelConnectedHandler);
+                channel.channel.addEventListener(DataChannelEvents.IDLE, this._onChannelIdleHandler);
+                channel.channel.addEventListener(DataChannelEvents.UNAVAILABLE, this._onChannelUnavailableHandler);
 
                 this.addChannelToMap(channel);
 
@@ -131,11 +160,35 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
             appendRoute(this._router, externalChannel.routes, this._routeThreadManager, this);
 
             const channel = new DataChannelProxy(externalChannel);
+            channel.channel.addEventListener(DataChannelEvents.CONNECTED, this._onChannelConnectedHandler);
+            channel.channel.addEventListener(DataChannelEvents.UNAVAILABLE, this._onChannelUnavailableHandler);
 
             this.addChannelToMap(channel);
 
             this.pingChannel(channel, true);
         }
+    }
+
+    private changeDataChannel() {
+        this.generateStats();
+        this.dispatch(DataChannelRouterEvents.STATS, this._stats);
+    }
+
+    private generateStats() {
+        const map = this._channelsByPriority, result: IDataChannelsStats = {};
+        for (let i = 0, l = DATA_CHANNEL_SIGNAL_QUALITY_LIST.length; i < l; i++) {
+            const signal: DataChannelSignalQuality = DATA_CHANNEL_SIGNAL_QUALITY_LIST[i];
+            if (map.has(signal)) {
+                const channels = map.get(signal);
+                if (channels.length > 0) {
+                    for (let channel of channels) {
+                        result[channel.id] = { signal, status: channel.status };
+                    }
+                }
+            }
+        }
+        this._stats = result;
+        return result;
     }
 
     private addChannelToMap(channel: DataChannelProxy) {
@@ -164,11 +217,13 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
                     if (err) {
                         thread.reject();
 
+                        this.dispatch(DataChannelRouterEvents.PING_FAILURE, channel.id);
+
                         signalQuality = calculateSignalQuality(-1);
                         const isChanged = this.storeChannel(channel, signalQuality);
                         this.selectFastestChannel();
                         if (isChanged) {
-                            this.dispatch(DataChannelRouterEvents.CHANGE, channel.id, channel.status);
+                            this.dispatch(DataChannelRouterEvents.CHANGE, { id: channel.id, status: channel.status, signal: channel.signal });
                         }
 
                         this.pingChannel(channel);
@@ -179,7 +234,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
                     const isChanged = this.storeChannel(channel, signalQuality);
                     this.selectFastestChannel();
                     if (isChanged) {
-                        this.dispatch(DataChannelRouterEvents.CHANGE, channel.id, channel.status);
+                        this.dispatch(DataChannelRouterEvents.CHANGE, { id: channel.id, status: channel.status, signal: channel.signal });
                     }
 
                     thread.complete();
@@ -196,22 +251,22 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
         const map = this._channelsByPriority,
             status = signalQuality === DataChannelSignalQuality.DISABLED ? DataChannelStatuses.UNAVAILABLE : DataChannelStatuses.IDLE;
 
-        if (!map.has(signalQuality)) {
-            map.set(signalQuality, []);
-        }
-
         if (channel.channel.signal !== signalQuality) {
+            if (!map.has(signalQuality)) {
+                map.set(signalQuality, []);
+            }
+
             map.forEach((data) => {
-                const index = data.findIndex(c => c.channel.id === channel.channel.id);
+                const index = data.findIndex(c => c === channel);
                 if (index > -1) {
                     data.splice(index, 1);
                 }
             });
 
             const list = map.get(signalQuality);
+            list.push(channel);
             channel.channel.status = status;
             channel.channel.signal = signalQuality;
-            list.push(channel);
             return true;
         }
         return false;
@@ -256,7 +311,7 @@ export class DataChannelRouter<R = any> extends EventEmitter<Events, Listeners> 
                 channel.channel.status = DataChannelStatuses.CONNECTED;
                 this._activeChannel = channel;
                 this._routeThreadManager.play();
-                this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, { id: channel.id, status: channel.status });
+                this.dispatch(DataChannelRouterEvents.CHANNEL_CHANGE, { id: channel.id, status: channel.status, signal: channel.signal });
             } else {
                 this._activeChannel = null;
                 this._routeThreadManager.pause();

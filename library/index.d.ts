@@ -1,4 +1,8 @@
 import {
-    DataChannel, DataChannelRouter, IDataChannel, IDataChannelOptions, IDelayMap, IDataChannelsStats, DataChannelEvents, DataChannelRouterEvents, DataChannelSignalQuality,
+    DataChannel, DataChannelRouter, Id, IDataChannel, IDataChannelOptions, IDelayMap, IDataChannelsStats, DataChannelEvents, DataChannelRouterEvents,
+    DataChannelSignalQuality, IDataChannelInfo,
 } from './src';
-export { DataChannel, DataChannelRouter, IDataChannel, IDataChannelOptions, IDelayMap, IDataChannelsStats, DataChannelEvents, DataChannelRouterEvents, DataChannelSignalQuality, };
+export {
+    DataChannel, DataChannelRouter, Id, IDataChannel, IDataChannelOptions, IDelayMap, IDataChannelsStats, DataChannelEvents, DataChannelRouterEvents,
+    DataChannelSignalQuality, IDataChannelInfo,
+};

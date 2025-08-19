@@ -5,13 +5,15 @@ import { IThreadManagerOptions } from "../interfaces";
 import { EventEmitter } from "../utils";
 import { Thread } from "./Thread";
 
-type Events = typeof ThreadManagerEvents.STARTED | typeof ThreadManagerEvents.COMPLITED;
+type Events = typeof ThreadManagerEvents.STARTED | typeof ThreadManagerEvents.COMPLITED | typeof ThreadManagerEvents.BUFFERING;
 
 type OnStartedListener = (thread: Thread) => void;
 
 type OnCompletedListener = (thread: Thread) => void;
 
-type Listeners = OnStartedListener | OnCompletedListener;
+type OnBufferingListener = (bufferSize: number) => void;
+
+type Listeners = OnStartedListener | OnCompletedListener | OnBufferingListener;
 
 /**
  * Thread manager
@@ -76,7 +78,10 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
 
     add(thread: Thread) {
         this._threadQueue.push(thread);
-        this.startNextThreadIfNeed();
+        const isChanged = this.startNextThreadIfNeed();
+        if (!isChanged) {
+            this.dispatch(ThreadManagerEvents.BUFFERING, this.buffering);
+        }
     }
 
     run() {
@@ -94,12 +99,12 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
         this._paused = true;
     }
 
-    protected startNextThreadIfNeed() {
+    protected startNextThreadIfNeed(): boolean {
         if (this._paused) {
-            return;
+            return false;
         }
         const waitToConnectionStarted: Array<Thread> = [];
-        let processingThreadQueueLength = this._processingThreadQueue.length;
+        let processingThreadQueueLength = this._processingThreadQueue.length, isChanged = false;
         while (processingThreadQueueLength > 0 && this._threadsInWork < this._maxThreads) {
             processingThreadQueueLength--;
             if (this._processingThreadQueue[0].hasEventListener(ThreadEvents.STARTED, this._onThreadStartedHandler)) {
@@ -110,12 +115,17 @@ export class ThreadManager extends EventEmitter<Events, Listeners> {
             this.startThread(thread);
         }
         while (this._threadQueue.length > 0 && this._threadsInWork < this._maxThreads) {
+            isChanged = true;
             const thread = this._threadQueue.shift(), started = waitToConnectionStarted.includes(thread);
             if (!started) {
                 this._processingThreadQueue.push(thread);
             }
             this.startThread(thread, started);
         }
+        if (isChanged) {
+            this.dispatch(ThreadManagerEvents.BUFFERING, this.buffering);
+        }
+        return isChanged;
     }
 
     protected startThread(thread: Thread, started = false) {

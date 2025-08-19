@@ -73,8 +73,33 @@ const dc = new DataChannelRouter<IRoutes>({
     pingTimeout: 2000,
 });
 
+// Listening to changes in statistics
+dc.addEventListener(DataChannelRouterEvents.STATS, (stats: IDataChannelsStats) => {
+    let statStr = '';
+    for (const idStr in stats) {
+        const id = Number(idStr), stat = stats[id];
+        statStr += `channel${id}: status: ${stat.status}; signal: ${stat.signal} <br/>`;
+    }
+    console.info(statStr);
+});
+// Listen for buffering changes
+dc.addEventListener(DataChannelRouterEvents.BUFFERING, (bufferSize: number) => {
+    console.info(`Buffering: ${bufferSize}`);
+});
+// Listening for ping failure event
+dc.addEventListener(DataChannelRouterEvents.PING_FAILURE, (channelId: Id) => {
+    console.info(`Ping failure on channel${channelId}`);
+});
+// Listen for route failure event
+dc.addEventListener(DataChannelRouterEvents.ROUTE_ERROR, (routeName: string, channelId: Id) => {
+    log(`Route error ${routeName} on channel${channelId}`);
+});
+// Listen for channel failure recovery event
+dc.addEventListener(DataChannelRouterEvents.CHANNEL_RECOVERY, (channel: IDataChannelInfo) => {
+    log(`The channel${channel.id} has been recovered`);
+});
 // Start the channel change listener
-dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel | null) => {
+dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannelInfo | null) => {
     if (channel) {
         // Do something
         // It is possible to implement a subscription to listen to sockets on a given channel and close sockets of an inactive channel.
@@ -114,6 +139,21 @@ Properties
 | isAvailable | boolean | Readonly. Returns true if there are data channels available. |
 | router | R | Generic type. Router. |
 | stats | [IDataChannelsStats](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelsStats.ts) | Readonly. Returns statistics for data channels. |
+
+<br/>
+
+Events
+
+| Name | Type | Description |
+|---|---|---|
+| DataChannelRouterEvents.CHANNEL_CHANGE | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void | Emitted when the data transmission channel changes. |
+| DataChannelRouterEvents.CHANNEL_UNAVAILABLE | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void => void | Emitted when the data channel becomes unavailable. |
+| DataChannelRouterEvents.CHANNEL_RECOVERY | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts)) => void => void | Emitted when a previously faulty channel becomes operational again. |
+| DataChannelRouterEvents.CHANGE | (channel: [IDataChannelInfo](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelInfo.ts) \| null) => void => void | Emit when changing the statuses of the channels. |
+| DataChannelRouterEvents.PING_FAILURE | (channelId: [Id](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/types/id.ts)) => void => void | Emitted during ping failure. |
+| DataChannelRouterEvents.ROUTE_ERROR | (routeName: string, channelId: Id) => void | Emitted when a route call fails. |
+| DataChannelRouterEvents.STATS | (stats: [IDataChannelsStats](https://github.com/DjonnyX/data-channel-router/blob/main/library/src/interfaces/IDataChannelsStats.ts)) => void | Emitted when the signal and status in data channels changes. |
+| DataChannelRouterEvents.BUFFERING | (bufferSize: number) => void | Emitted when the buffer size changes. |
 
 <br/>
 

@@ -1,4 +1,8 @@
-import { DataChannelRouter, DataChannelRouterEvents, DataChannelSignalQuality, IDataChannel, IDataChannelOptions } from '../library/src';
+import {
+    DataChannelRouter, DataChannelRouterEvents, DataChannelSignalQuality, Id, IDataChannelInfo, IDataChannelOptions,
+    IDataChannelsStats,
+
+} from '../library/src';
 
 let logStr: string = '';
 
@@ -7,6 +11,10 @@ const formatLogStr = (str: string) => {
     str = str.replace(/(channel2)/ig, `<span style="color:rgb(255, 97, 97);">$1</span>`);
     str = str.replace(/(channel3)/ig, `<span style="color:rgb(218, 40, 235);">$1</span>`);
     str = str.replace(/(channel4)/ig, `<span style="color:rgb(69, 156, 255);">$1</span>`);
+    str = str.replace(/(\[ROUTE\])/ig, `<span style="color:rgb(153, 45, 255);">$1</span>`);
+    str = str.replace(/(\[PING\])/ig, `<span style="color:rgb(223, 255, 45);">$1</span>`);
+    str = str.replace(/(\[FAILURE\])/ig, `<span style="color: #ff3030;">$1</span>`);
+    str = str.replace(/(\[RECOVERY\])/ig, `<span style="color:rgb(48, 255, 186);">$1</span>`);
     str = str.replace(/(\[SOCKET\])/ig, `<span style="color:rgb(255, 95, 183);">$1</span>`);
     str = str.replace(/(\[REQUEST\])/ig, `<span style="color:rgb(63, 233, 255);">$1</span>`);
     str = str.replace(/(\[CLOSE\])/ig, `<span style="color:rgb(255, 219, 219);">$1</span>`);
@@ -262,7 +270,6 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             log(`[REQUEST]::[ERROR]: GET ${route} (${delay}ms)`);
         }
-        info(`Buffering: ${dc.buffering}`);
     },
     createUser: async (userId: string, data: { name: string; }) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
@@ -275,7 +282,6 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             log(`[REQUEST]::[ERROR]: POST ${route} (${delay}ms)`);
         }
-        info(`Buffering: ${dc.buffering}`);
     },
     updateUser: async (userId: string, data: { name: string; }) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
@@ -288,7 +294,6 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             log(`[REQUEST]::[ERROR]: PUT ${route} (${delay}ms)`);
         }
-        info(`Buffering: ${dc.buffering}`);
     },
     deleteUser: async (userId: string) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
@@ -301,7 +306,6 @@ const routes = (channel: string, req: Request): IRoutes => ({
             const finishedTime = Date.now(), delay = finishedTime - startTime;
             log(`[REQUEST]::[ERROR]: DELETE ${route} (${delay}ms)`);
         }
-        info(`Buffering: ${dc.buffering}`);
     },
 });
 
@@ -315,7 +319,6 @@ const socket1 = new Socket(),
         }
         const cb = (data: ISocketDataStat) => {
             log(`[SOCKET]::[MESSAGE] ${channel}: ${data.num}`);
-            info(`Buffering: ${dc.buffering}`);
             return data;
         }
         socket.listen(cb);
@@ -376,7 +379,27 @@ const dc = new DataChannelRouter<IRoutes>({
     },
 });
 
-dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannel | null) => {
+dc.addEventListener(DataChannelRouterEvents.STATS, (stats: IDataChannelsStats) => {
+    let statStr = '';
+    for (const idStr in stats) {
+        const id = Number(idStr), stat = stats[id];
+        statStr += `[channel${id}]: status: ${stat.status}; signal: ${stat.signal} <br/>`;
+    }
+    stat(statStr);
+});
+dc.addEventListener(DataChannelRouterEvents.BUFFERING, (bufferSize: number) => {
+    info(`Buffering: ${bufferSize}`);
+});
+dc.addEventListener(DataChannelRouterEvents.PING_FAILURE, (channelId: Id) => {
+    log(`[PING]::[FAILURE] channel${channelId}`);
+});
+dc.addEventListener(DataChannelRouterEvents.CHANNEL_RECOVERY, (channel: IDataChannelInfo) => {
+    log(`[RECOVERY] channel${channel.id} `);
+});
+dc.addEventListener(DataChannelRouterEvents.ROUTE_ERROR, (routeName: string, channelId: Id) => {
+    log(`[ROUTE]::[ERROR] ${routeName} channel${channelId}`);
+});
+dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChannelInfo | null) => {
     if (channel) {
         const channelNumber = Number(channel.id);
         for (let i = 0, l = 4; i < l; i++) {
@@ -427,19 +450,10 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
     } else {
         error('[CHANNEL]::[ERROR] No data channels available.');
     }
-    const stats = dc.stats;
-    let statStr = '';
-    for (const id in stats) {
-        const num = Number(id), stat = stats[id];
-        statStr += `[channel${num}]: status: ${stat.status}; signal: ${stat.signal} <br/>`;
-    }
-    stat(statStr);
 })
 
 setInterval(() => {
     if (!dc.isAvailable) {
-        error('[CHANNEL]::[ERROR] No data channels available.');
-        info(`Buffering: ${dc.buffering}`);
         return;
     }
     const routeNum = Math.round(Math.random() * 4),
