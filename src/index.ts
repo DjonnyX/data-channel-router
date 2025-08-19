@@ -7,21 +7,23 @@ const formatLogStr = (str: string) => {
     str = str.replace(/(channel2)/ig, `<span style="color:rgb(255, 97, 97);">$1</span>`);
     str = str.replace(/(channel3)/ig, `<span style="color:rgb(218, 40, 235);">$1</span>`);
     str = str.replace(/(channel4)/ig, `<span style="color:rgb(69, 156, 255);">$1</span>`);
-    str = str.replace(/(\[SOCKET\])/ig, `<span style="color:rgb(255, 242, 63);">$1</span>`);
-    str = str.replace(/(\[CLOSE\])/ig, `<span style="color:rgb(241, 201, 201);">$1</span>`);
-    str = str.replace(/(\[CONNECT\])/ig, `<span style="color:rgb(118, 223, 86);">$1</span>`);
-    str = str.replace(/(\[SUCCESS\])/ig, `<span style="color: #3c7936;">$1</span>`);
-    str = str.replace(/(\[ERROR\])/ig, `<span style="color: #9f1717;">$1</span>`);
-    str = str.replace(/(\[PENDING\])/ig, `<span style="color:rgb(23, 127, 159);">$1</span>`);
+    str = str.replace(/(\[SOCKET\])/ig, `<span style="color:rgb(255, 95, 183);">$1</span>`);
+    str = str.replace(/(\[REQUEST\])/ig, `<span style="color:rgb(63, 233, 255);">$1</span>`);
+    str = str.replace(/(\[CLOSE\])/ig, `<span style="color:rgb(255, 219, 219);">$1</span>`);
+    str = str.replace(/(\[MESSAGE\])/ig, `<span style="color:rgb(255, 180, 83);">$1</span>`);
+    str = str.replace(/(\[CONNECT\])/ig, `<span style="color:rgb(255, 255, 255);">$1</span>`);
+    str = str.replace(/(\[SUCCESS\])/ig, `<span style="color:rgb(94, 190, 86);">$1</span>`);
+    str = str.replace(/(\[ERROR\])/ig, `<span style="color: #ff3030;">$1</span>`);
+    str = str.replace(/(\[PENDING\])/ig, `<span style="color:rgb(45, 160, 196);">$1</span>`);
     return str;
 }
 
 const formatErrorStr = (str: string) => {
-    return `<span style="color:rgb(255, 48, 48);">${str}</span>`;
+    return `<span style="color:#ff3030;">${str}</span>`;
 }
 
 const formatConnectStr = (str: string) => {
-    return `<span style="color:rgb(118, 223, 86);">${str}</span>`;
+    return `<span style="color:#76df56;">${str}</span>`;
 }
 
 const formatStatsStr = (str: string) => {
@@ -33,12 +35,24 @@ const formatStatsStr = (str: string) => {
     result = result.replace(/(connected)/ig, `<span style="color:rgb(118, 223, 86);">$1</span>`);
     result = result.replace(/(unavailable)/ig, `<span style="color:rgb(255, 88, 88);">$1</span>`);
     result = result.replace(/(idle)/ig, `<span style="color:rgb(221, 197, 59);">$1</span>`);
-    result = result.replace(/(: 0)/ig, `<span style="color:rgb(221, 59, 59);">$1</span>`);
-    result = result.replace(/(: 1)/ig, `<span style="color:rgb(238, 103, 41);">$1</span>`);
-    result = result.replace(/(: 2)/ig, `<span style="color:rgb(235, 138, 58);">$1</span>`);
-    result = result.replace(/(: 3)/ig, `<span style="color:rgb(231, 176, 57);">$1</span>`);
-    result = result.replace(/(: 4)/ig, `<span style="color:rgb(205, 216, 52);">$1</span>`);
-    result = result.replace(/(: 5)/ig, `<span style="color:rgb(23, 226, 50);">$1</span>`);
+    result = result.replace(/(signal: 0)/ig, (s) => {
+        return s.replace(/(0)/ig, `<span style="color:rgb(221, 59, 59);">$1</span>`);
+    });
+    result = result.replace(/(signal: 1)/ig, (s) => {
+        return s.replace(/(1)/ig, `<span style="color:rgb(238, 103, 41);">$1</span>`);
+    });
+    result = result.replace(/(signal: 2)/ig, (s) => {
+        return s.replace(/(2)/ig, `<span style="color:rgb(235, 138, 58);">$1</span>`);
+    });
+    result = result.replace(/(signal: 3)/ig, (s) => {
+        return s.replace(/(3)/ig, `<span style="color:rgb(231, 176, 57);">$1</span>`);
+    });
+    result = result.replace(/(signal: 4)/ig, (s) => {
+        return s.replace(/(4)/ig, `<span style="color:rgb(205, 216, 52);">$1</span>`);
+    });
+    result = result.replace(/(signal: 5)/ig, (s) => {
+        return s.replace(/(5)/ig, `<span style="color:rgb(23, 226, 50);">$1</span>`);
+    });
     return result;
 }
 
@@ -82,7 +96,7 @@ const error = (str: string) => {
 const info = (str: string) => {
     const li = document.querySelector('#li3-scroller');
     if (li) {
-        li.innerHTML =`<div>${str}</div>`;
+        li.innerHTML = `<div>${str}</div>`;
     }
 }
 
@@ -240,52 +254,52 @@ const routes = (channel: string, req: Request): IRoutes => ({
     getUser: async (userId: string) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
-            log(`[PENDING] Request: GET ${route}`);
+            log(`[REQUEST]::[PENDING]: GET ${route}`);
             await req.get(`${channel}/user/${userId}`);
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            log(`[SUCCESS] Request: GET ${route} (${delay}ms)`);
+            log(`[REQUEST]::[SUCCESS]: GET ${route} (${delay}ms)`);
         } catch (err) {
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            log(`[ERROR] Request: GET ${route} (${delay}ms)`);
+            log(`[REQUEST]::[ERROR]: GET ${route} (${delay}ms)`);
         }
         info(`Buffering: ${dc.buffering}`);
     },
     createUser: async (userId: string, data: { name: string; }) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
-            log(`[PENDING] Request: POST ${route}`);
+            log(`[REQUEST]::[PENDING]: POST ${route}`);
             await req.post(route, data);
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            log(`[SUCCESS] Request: POST ${route} (${delay}ms)`);
+            log(`[REQUEST]::[SUCCESS]: POST ${route} (${delay}ms)`);
         } catch (err) {
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            log(`[ERROR] Request: POST ${route} (${delay}ms)`);
+            log(`[REQUEST]::[ERROR]: POST ${route} (${delay}ms)`);
         }
         info(`Buffering: ${dc.buffering}`);
     },
     updateUser: async (userId: string, data: { name: string; }) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
-            log(`[PENDING] Request: PUT ${route}`);
+            log(`[REQUEST]::[PENDING]: PUT ${route}`);
             await req.put(route, data);
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            log(`[SUCCESS] Request: PUT ${route} (${delay}ms)`);
+            log(`[REQUEST]::[SUCCESS]: PUT ${route} (${delay}ms)`);
         } catch (err) {
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            log(`[ERROR] Request: PUT ${route} (${delay}ms)`);
+            log(`[REQUEST]::[ERROR]: PUT ${route} (${delay}ms)`);
         }
         info(`Buffering: ${dc.buffering}`);
     },
     deleteUser: async (userId: string) => {
         const route = `${channel}/user/${userId}`, startTime = Date.now();
         try {
-            log(`[PENDING] Request: DELETE ${route}`);
+            log(`[REQUEST]::[PENDING]: DELETE ${route}`);
             await req.delete(route);
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            log(`[SUCCESS] Request: DELETE ${route} (${delay}ms)`);
+            log(`[REQUEST]::[SUCCESS]: DELETE ${route} (${delay}ms)`);
         } catch (err) {
             const finishedTime = Date.now(), delay = finishedTime - startTime;
-            log(`[ERROR] Request: DELETE ${route} (${delay}ms)`);
+            log(`[REQUEST]::[ERROR]: DELETE ${route} (${delay}ms)`);
         }
         info(`Buffering: ${dc.buffering}`);
     },
@@ -300,7 +314,7 @@ const socket1 = new Socket(),
             return;
         }
         const cb = (data: ISocketDataStat) => {
-            log(`[SOCKET] Message ${channel}: ${data.num}`);
+            log(`[SOCKET]::[MESSAGE] ${channel}: ${data.num}`);
             info(`Buffering: ${dc.buffering}`);
             return data;
         }
@@ -311,7 +325,7 @@ const socket1 = new Socket(),
         if (!socket.opened) {
             return;
         }
-        log(`[SOCKET] [CLOSE] ${channel}`);
+        log(`[SOCKET]::[CLOSE] ${channel}`);
         socket.close();
     };
 
@@ -409,9 +423,9 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
                 }
             }
         }
-        connect(`[CONNECT] Active channel: channel${channelNumber}, status: ${channel.status}`);
+        connect(`[CHANNEL]::[CONNECT] Active channel: channel${channelNumber}, status: ${channel.status}`);
     } else {
-        error('[ERROR] No communication channels available.');
+        error('[CHANNEL]::[ERROR] No data channels available.');
     }
     const stats = dc.stats;
     let statStr = '';
@@ -424,7 +438,7 @@ dc.addEventListener(DataChannelRouterEvents.CHANNEL_CHANGE, (channel: IDataChann
 
 setInterval(() => {
     if (!dc.isAvailable) {
-        error('[ERROR] No communication channels available.');
+        error('[CHANNEL]::[ERROR] No data channels available.');
         info(`Buffering: ${dc.buffering}`);
         return;
     }
