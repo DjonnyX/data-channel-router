@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.0.13] - 2025-08-19
+  
+### Added 
+
+- Various events have been added
+- CHANGELOG.md added to the library
+
 ## [1.0.12] - 2025-08-19
   
 Critical errors fixed
